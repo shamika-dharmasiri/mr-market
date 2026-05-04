@@ -950,15 +950,8 @@ async function refreshAll() {
       if (val != null) STATE.indicators['usUnemployment'] = { value:val, status:IND.usUnemployment.getStatus(val), isManual:false, extra:null, lastFetched:new Date().toISOString(), stale:false };
     })());
 
-    // 3. FRED CSV — fedRate and usDebtGdp
-    for (const [iid, sid] of [['fedRate','FEDFUNDS'],['usDebtGdp','GFDEGDQ188S']]) {
-      tasks.push((async(id, series)=>{
-        const val = await fetchFredCsv(series);
-        if (val != null) {
-          STATE.indicators[id] = { value:val, status:IND[id].getStatus(val), isManual:false, extra:null, lastFetched:new Date().toISOString(), stale:false };
-        }
-      })(iid, sid));
-    }
+    // fedRate and usDebtGdp come from data/market-data.js (FRED fetched server-side).
+    // FRED CSV blocks CORS from all browser origins — server-side only.
 
     // Yahoo Finance symbols (asx200, sp500, vix, gold, oil, treasury10y) are
     // not fetched client-side — Yahoo blocks all CORS proxy requests.
@@ -1674,21 +1667,6 @@ function saveQuickUpdate() {
 }
 
 // ══════════════════════════════════════════════════════
-// FRED CSV FETCH
-// ══════════════════════════════════════════════════════
-async function fetchFredCsv(seriesId) {
-  try {
-    const r = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`, { signal: AbortSignal.timeout(10000) });
-    if (!r.ok) return null;
-    const text = await r.text();
-    const lines = text.trim().split('\n').filter(l => l && !l.startsWith('DATE'));
-    for (let i = lines.length - 1; i >= 0; i--) {
-      const [, val] = lines[i].split(',');
-      if (val && val.trim() !== '.' && !isNaN(parseFloat(val.trim()))) return parseFloat(val.trim());
-    }
-    return null;
-  } catch(_) { return null; }
-}
 
 // ══════════════════════════════════════════════════════
 // GRAIN TEXTURE
