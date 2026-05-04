@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mr Market's Mood Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f0f;
+  --surface: #161616;
+  --surface-raised: #1c1c1c;
+  --border: #242424;
+  --border-mid: #2e2e2e;
+  --gold: #c9a84c;
+  --gold-bright: #f1c40f;
+  --amber: #e8a020;
+  --text: #ddd8cc;
+  --text-sub: #8a8070;
+  --text-faint: #4a4540;
+  --green: #2ecc71;
+  --green-bg: rgba(46,204,113,0.07);
+  --green-border: rgba(46,204,113,0.22);
+  --yellow: #f39c12;
+  --yellow-bg: rgba(243,156,18,0.07);
+  --yellow-border: rgba(243,156,18,0.22);
+  --red: #e74c3c;
+  --red-bg: rgba(231,76,60,0.07);
+  --red-border: rgba(231,76,60,0.22);
+  --serif: 'Playfair Display', Georgia, serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+  --radius: 4px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.55; min-height: 100vh; }
+.grain { position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0.55; background-size: 180px 180px; }
+.wrap { max-width: 1380px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+/* LOADING OVERLAY */
+#loading { position: fixed; inset: 0; background: rgba(10,10,10,0.85); backdrop-filter: blur(4px); z-index: 8000; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+#loading.show { display: flex; }
+.spinner { width: 36px; height: 36px; border: 3px solid var(--border-mid); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-family: var(--mono); font-size: 12px; color: var(--gold); letter-spacing: 0.1em; }
+
+/* HEADER */
+header { border-bottom: 1px solid var(--border); padding: 22px 0 18px; }
+.header-inner { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.header-left h1 { font-family: var(--serif); font-size: clamp(22px, 3.5vw, 38px); font-weight: 900; color: var(--gold); letter-spacing: 0.05em; line-height: 1.1; }
+.header-left .subtitle { font-size: 12px; color: var(--text-sub); font-style: italic; margin-top: 4px; letter-spacing: 0.03em; }
+.header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.last-updated { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+.last-updated.stale { color: var(--yellow); }
+.btn-refresh { background: transparent; border: 1.5px solid var(--gold); color: var(--gold); font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 10px 20px; border-radius: var(--radius); cursor: pointer; letter-spacing: 0.08em; transition: all 0.2s; }
+.btn-refresh:hover { background: var(--gold); color: #000; }
+.btn-refresh:active { transform: scale(0.97); }
+
+/* CHARACTER SECTION */
+#character-section { padding: 40px 0 30px; border-bottom: 1px solid var(--border); }
+.character-inner { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.svg-wrapper { width: 200px; height: 300px; position: relative; }
+.mr-svg { width: 200px; height: 300px; display: none; transform-box: fill-box; transform-origin: center bottom; }
+.mr-svg.active { display: block; }
+
+@keyframes dance {
+  0%,100% { transform: rotate(-12deg) translateY(0); }
+  25% { transform: rotate(10deg) translateY(-10px); }
+  75% { transform: rotate(-6deg) translateY(-5px); }
+}
+@keyframes bob {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+@keyframes breathe {
+  0%,100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.018); }
+}
+@keyframes tremble {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-3px) rotate(-1deg); }
+  40% { transform: translateX(3px) rotate(1deg); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px) rotate(0.5deg); }
+}
+@keyframes run {
+  0%,100% { transform: rotate(-22deg) translateY(0); }
+  50% { transform: rotate(-22deg) translateY(-12px); }
+}
+.mood-euphoric { animation: dance 0.85s ease-in-out infinite; }
+.mood-optimistic { animation: bob 2s ease-in-out infinite; }
+.mood-neutral { animation: breathe 4s ease-in-out infinite; transform-origin: center center; }
+.mood-anxious { animation: tremble 0.45s ease-in-out infinite; transform-origin: center center; }
+.mood-panicking { animation: run 0.38s ease-in-out infinite; }
+
+.mood-label { font-family: var(--serif); font-size: 28px; font-weight: 900; letter-spacing: 0.12em; text-align: center; }
+.mood-quote { font-size: 13px; color: var(--text-sub); font-style: italic; text-align: center; max-width: 480px; }
+.score-display { font-family: var(--mono); font-size: clamp(60px, 10vw, 90px); font-weight: 700; line-height: 1; color: var(--gold); text-align: center; }
+.score-label { font-size: 11px; color: var(--text-faint); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; text-align: center; }
+
+/* FEAR-GREED METER */
+.meter-wrap { width: min(420px, 90vw); }
+.meter-labels { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-faint); letter-spacing: 0.06em; margin-bottom: 6px; }
+.meter-bar { height: 10px; background: linear-gradient(to right, #7b0000 0%, #c0392b 18%, #e67e22 35%, #f1c40f 50%, #27ae60 72%, #c9a84c 100%); border-radius: 5px; position: relative; }
+.meter-needle { position: absolute; top: -5px; width: 4px; height: 20px; background: white; border-radius: 2px; transform: translateX(-50%); transition: left 0.9s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 0 6px rgba(255,255,255,0.5); }
+
+/* SECTION HEADINGS */
+.section-head { padding: 28px 0 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.section-title { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.section-title span { font-size: 22px; }
+
+/* INDICATORS GRID */
+.indicators-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.col-label { font-family: var(--serif); font-size: 16px; font-weight: 700; padding: 0 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.cards-col { display: flex; flex-direction: column; gap: 10px; }
+.macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+/* INDICATOR CARD */
+.ind-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px; transition: border-color 0.2s; position: relative; }
+.ind-card:hover { border-color: var(--border-mid); }
+.ind-card.featured { border-color: var(--gold-dim); }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.card-label { font-size: 11px; font-weight: 600; color: var(--text-sub); letter-spacing: 0.06em; text-transform: uppercase; }
+.status-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0; }
+.status-badge.healthy { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green); }
+.status-badge.caution { background: var(--yellow-bg); border: 1px solid var(--yellow-border); color: var(--yellow); }
+.status-badge.warning { background: var(--red-bg); border: 1px solid var(--red-border); color: var(--red); }
+.status-badge.unknown { background: rgba(100,100,100,0.1); border: 1px solid #333; color: #666; }
+.card-value { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; display: flex; align-items: baseline; gap: 10px; }
+.card-change { font-size: 12px; font-weight: 500; }
+.card-change.up { color: var(--green); }
+.card-change.down { color: var(--red); }
+.card-change.flat { color: var(--text-faint); }
+.card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.data-tag { font-size: 9px; padding: 1px 6px; border-radius: 3px; letter-spacing: 0.06em; font-weight: 600; }
+.data-tag.live { background: rgba(46,204,113,0.1); color: #27ae60; }
+.data-tag.manual { background: rgba(200,200,200,0.06); color: #666; }
+.data-tag.stale { background: rgba(243,156,18,0.12); color: var(--yellow); }
+.edit-btn { background: none; border: none; color: var(--text-faint); cursor: pointer; padding: 2px 4px; font-size: 12px; line-height: 1; border-radius: 3px; transition: color 0.15s; }
+.edit-btn:hover { color: var(--gold); }
+.card-interpret { font-size: 11px; color: var(--text-sub); line-height: 1.45; }
+.card-52w { margin-top: 6px; }
+.card-52w-bar { height: 4px; background: var(--border-mid); border-radius: 2px; position: relative; margin-top: 3px; }
+.card-52w-fill { height: 4px; background: var(--gold); border-radius: 2px; position: absolute; left: 0; }
+.card-52w-label { font-family: var(--mono); font-size: 9px; color: var(--text-faint); margin-top: 2px; }
+.inline-edit-wrap { display: flex; gap: 6px; align-items: center; }
+.inline-edit { background: var(--surface-raised); border: 1px solid var(--gold-dim); color: var(--text); font-family: var(--mono); font-size: 14px; padding: 4px 8px; border-radius: 3px; width: 100px; outline: none; }
+.inline-edit:focus { border-color: var(--gold); }
+.inline-save { background: var(--gold); border: none; color: #000; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 3px; cursor: pointer; }
+.pe-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.pe-label { font-size: 10px; color: var(--text-faint); font-family: var(--mono); }
+.pe-val { font-family: var(--mono); font-size: 12px; color: var(--text-sub); }
+
+/* ACTION PANEL */
+#action-section { padding: 0 0 24px; }
+.action-card { border-radius: 6px; padding: 22px 26px; border: 1px solid var(--border); }
+.action-card.euphoric { border-color: rgba(241,196,15,0.3); background: rgba(241,196,15,0.04); }
+.action-card.optimistic { border-color: rgba(232,160,32,0.3); background: rgba(232,160,32,0.04); }
+.action-card.neutral { border-color: rgba(127,143,166,0.3); background: rgba(127,143,166,0.04); }
+.action-card.anxious { border-color: rgba(230,126,34,0.3); background: rgba(230,126,34,0.04); }
+.action-card.panicking { border-color: rgba(192,57,43,0.3); background: rgba(192,57,43,0.04); }
+.action-head { font-family: var(--serif); font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+.action-text { font-size: 13px; line-height: 1.7; color: var(--text-sub); }
+
+/* PORTFOLIO */
+#portfolio-section { padding: 0 0 24px; }
+.btn-sm { background: transparent; border: 1px solid var(--border-mid); color: var(--text-sub); font-family: var(--mono); font-size: 11px; padding: 7px 14px; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; letter-spacing: 0.04em; }
+.btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+.portfolio-table-wrap { overflow-x: auto; }
+table.port { width: 100%; border-collapse: collapse; }
+table.port th { font-size: 10px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-faint); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+table.port td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: middle; }
+table.port tr:last-child td { border-bottom: none; }
+table.port tr.port-total td { border-top: 1px solid var(--border-mid); font-weight: 700; font-family: var(--mono); }
+.port-val { font-family: var(--mono); }
+.gain-pos { color: var(--green); }
+.gain-neg { color: var(--red); }
+.cgt-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; margin-top: 3px; }
+.cgt-badge.discount-soon { background: rgba(243,156,18,0.15); color: var(--yellow); }
+.cgt-badge.harvest { background: rgba(231,76,60,0.15); color: var(--red); }
+.cgt-badge.ok { background: rgba(46,204,113,0.1); color: var(--green); }
+.action-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.05em; }
+.action-tag.HOLD { background: rgba(127,143,166,0.15); color: #7f8fa6; }
+.action-tag.TRIM { background: rgba(231,76,60,0.15); color: var(--red); }
+.action-tag.ACCUMULATE { background: rgba(46,204,113,0.15); color: var(--green); }
+.action-tag.WATCH { background: rgba(243,156,18,0.15); color: var(--yellow); }
+.port-actions { display: flex; gap: 6px; }
+.port-edit-btn, .port-del-btn { background: none; border: none; cursor: pointer; font-size: 13px; padding: 2px; border-radius: 3px; transition: opacity 0.15s; opacity: 0.5; }
+.port-edit-btn:hover, .port-del-btn:hover { opacity: 1; }
+.port-empty { text-align: center; padding: 32px; color: var(--text-faint); font-size: 13px; font-style: italic; }
+.port-summary { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+.port-summary-item { display: flex; flex-direction: column; gap: 2px; }
+.port-summary-label { font-size: 10px; color: var(--text-faint); letter-spacing: 0.06em; text-transform: uppercase; }
+.port-summary-val { font-family: var(--mono); font-size: 16px; font-weight: 700; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(3px); z-index: 7000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.hidden { display: none; }
+.modal-box { background: var(--surface-raised); border: 1px solid var(--border-mid); border-radius: 8px; padding: 28px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; }
+.modal-title { font-family: var(--serif); font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 11px; color: var(--text-sub); letter-spacing: 0.05em; margin-bottom: 5px; display: block; }
+.form-input, .form-select { background: var(--surface); border: 1px solid var(--border-mid); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 9px 12px; border-radius: var(--radius); width: 100%; outline: none; }
+.form-input:focus, .form-select:focus { border-color: var(--gold); }
+.form-select option { background: var(--surface-raised); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.btn-cancel { background: transparent; border: 1px solid var(--border-mid); color: var(--text-sub); font-size: 12px; padding: 9px 18px; border-radius: var(--radius); cursor: pointer; }
+.btn-save { background: var(--gold); border: none; color: #000; font-size: 12px; font-weight: 700; padding: 9px 20px; border-radius: var(--radius); cursor: pointer; }
+.btn-save:hover { background: var(--amber); }
+
+/* HISTORY */
+#history-section { padding: 0 0 24px; }
+.history-content { margin-top: 12px; }
+table.hist { width: 100%; border-collapse: collapse; }
+table.hist th { font-size: 10px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-faint); padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+table.hist td { padding: 9px 12px; border-bottom: 1px solid var(--border); font-size: 12px; font-family: var(--mono); color: var(--text-sub); }
+table.hist tr:last-child td { border-bottom: none; }
+.hist-score { font-weight: 700; color: var(--text); }
+.hidden { display: none !important; }
+
+/* PHILOSOPHY TICKER */
+.ticker-outer { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: #0a0a0a; overflow: hidden; padding: 10px 0; margin-top: 8px; }
+.ticker-track { display: inline-flex; gap: 60px; animation: ticker-scroll 35s linear infinite; white-space: nowrap; }
+.ticker-track:hover { animation-play-state: paused; }
+.ticker-item { font-size: 11px; color: var(--gold-dim); letter-spacing: 0.06em; }
+.ticker-sep { color: var(--text-faint); }
+@keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* FOOTER */
+footer { border-top: 1px solid var(--border); padding: 20px 0 30px; margin-top: 16px; }
+.footer-inner { display: flex; gap: 32px; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; }
+.footer-sources { display: flex; gap: 32px; flex-wrap: wrap; }
+.footer-col h4 { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; }
+.footer-col ul { list-style: none; }
+.footer-col ul li { font-size: 11px; color: var(--text-faint); margin-bottom: 3px; font-family: var(--mono); }
+.btn-export { background: transparent; border: 1px solid var(--border-mid); color: var(--text-sub); font-family: var(--mono); font-size: 11px; padding: 8px 16px; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
+.btn-export:hover { border-color: var(--gold); color: var(--gold); }
+
+/* SEPARATOR */
+.section-sep { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .indicators-columns { grid-template-columns: 1fr; }
+  .macro-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .macro-grid { grid-template-columns: 1fr 1fr; }
+  .header-inner { flex-direction: column; align-items: flex-start; }
+  .port-summary { gap: 14px; }
+}
+@media (max-width: 420px) {
+  .macro-grid { grid-template-columns: 1fr; }
+}
+
+/* SOURCES */
+.card-sources { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--border); }
+.card-sources-toggle { background: none; border: none; color: var(--text-faint); cursor: pointer; font-size: 10px; font-family: var(--mono); padding: 0; letter-spacing: 0.04em; }
+.card-sources-toggle:hover { color: var(--gold); }
+.card-sources-links { display: none; flex-direction: column; gap: 3px; margin-top: 5px; }
+.card-sources-links.open { display: flex; }
+.card-sources-links a { font-size: 10px; color: var(--text-faint); text-decoration: none; font-family: var(--mono); }
+.card-sources-links a:hover { color: var(--gold); }
+
+/* FRESHNESS BADGES */
+.fresh-badge { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.05em; font-family: var(--mono); }
+.fresh-live { background: rgba(46,204,113,0.15); color: #27ae60; }
+.fresh-recent { background: rgba(46,204,113,0.08); color: #27ae60; opacity: 0.7; }
+.fresh-aging { background: rgba(243,156,18,0.12); color: var(--yellow); }
+.fresh-stale { background: rgba(231,76,60,0.12); color: var(--red); }
+.fresh-never { background: rgba(100,100,100,0.1); color: #555; }
+
+/* FRESHNESS SCORE */
+.freshness-score { font-family: var(--mono); font-size: 11px; color: var(--text-sub); }
+.freshness-score.warn { color: var(--yellow); }
+
+/* STALE REMINDER */
+.stale-reminder { background: rgba(243,156,18,0.08); border: 1px solid rgba(243,156,18,0.2); border-radius: 4px; padding: 7px 10px; margin-bottom: 10px; font-size: 10px; color: var(--yellow); line-height: 1.5; }
+.stale-reminder a { color: var(--gold); text-decoration: none; font-weight: 700; }
+.stale-reminder a:hover { text-decoration: underline; }
+
+/* DATA CALENDAR */
+.cal-table { width:100%; border-collapse:collapse; }
+.cal-table th { font-size:10px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-faint); padding:7px 12px; text-align:left; border-bottom:1px solid var(--border); }
+.cal-table td { padding:9px 12px; border-bottom:1px solid var(--border); font-size:12px; vertical-align:middle; }
+.cal-table tr:last-child td { border-bottom:none; }
+.cal-date-input { background:var(--surface); border:1px solid var(--border-mid); color:var(--text); font-family:var(--mono); font-size:11px; padding:3px 7px; border-radius:3px; width:115px; }
+.cal-date-input:focus { border-color:var(--gold); outline:none; }
+.cal-urgent { color:var(--red); font-weight:700; }
+.cal-soon { color:var(--yellow); font-weight:700; }
+.cal-link { color:var(--text-faint); text-decoration:none; font-size:10px; font-family:var(--mono); }
+.cal-link:hover { color:var(--gold); }
+
+/* PRINT */
+@media print {
+  .grain, .btn-refresh, .edit-btn, .btn-sm, .btn-export, .ticker-outer, footer .footer-sources { display: none !important; }
+  #loading { display: none !important; }
+  body { background: #fff; color: #000; }
+  .ind-card { border: 1px solid #ccc; break-inside: avoid; }
+  header { border-color: #ccc; }
+  .score-display { color: #222; }
+  .mood-label { color: #222; }
+  .action-text { color: #333; }
+  .mr-svg.active { break-inside: avoid; }
+  #portfolio-section, #history-section { break-before: page; }
+}
+</style>
+</head>
+<body>
+<canvas class="grain" id="grain-canvas"></canvas>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">FETCHING MARKET DATA...</div>
+</div>
+
+<div class="modal-overlay hidden" id="portfolio-modal">
+  <div class="modal-box">
+    <div class="modal-title">Add / Edit Holding</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Ticker / Asset Name</label>
+        <input class="form-input" id="p-name" type="text" placeholder="e.g. VOO, VAS, BTC">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Currency</label>
+        <select class="form-select" id="p-currency">
+          <option value="AUD">AUD</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Units Held</label>
+        <input class="form-input" id="p-units" type="number" min="0" step="0.0001" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Avg Buy Price</label>
+        <input class="form-input" id="p-price" type="number" min="0" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Purchase Date</label>
+        <input class="form-input" id="p-date" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Action Tag</label>
+        <select class="form-select" id="p-action">
+          <option value="HOLD">HOLD</option>
+          <option value="ACCUMULATE">ACCUMULATE</option>
+          <option value="TRIM">TRIM</option>
+          <option value="WATCH">WATCH</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="p-notes" type="text" placeholder="e.g. Core holding, tax-loss candidate">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="savePortfolioEntry()">Save Holding</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="quickupdate-modal">
+  <div class="modal-box" style="max-width:580px;">
+    <div class="modal-title">⚡ Quick Update — Manual Indicators</div>
+    <div id="qu-fields"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeQuickUpdate()">Close</button>
+      <button class="btn-save" onclick="saveQuickUpdate()">Save All</button>
+    </div>
+  </div>
+</div>
+
+<div id="cors-notice" class="hidden" style="background:rgba(201,168,76,0.1);border-bottom:1px solid rgba(201,168,76,0.3);padding:10px 0;">
+  <div class="wrap" style="font-size:11px;color:#c9a84c;font-family:var(--mono);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span>⚠ Opening from file:// — browser blocks all outbound API calls. Seed data via script tag still loads if you've run the fetch script.</span>
+    <span style="color:var(--text-faint)">Get live data: <code style="background:#1a1a1a;padding:2px 6px;border-radius:3px;">node scripts/fetch-market-data.mjs</code> then reload — or deploy to GitHub Pages for auto-updates.</span>
+    <button onclick="this.closest('#cors-notice').classList.add('hidden')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;margin-left:auto;">✕</button>
+  </div>
+</div>
+
+<div id="rba-alert" style="background:rgba(230,126,34,0.1);border-bottom:1px solid rgba(230,126,34,0.3);padding:10px 0;">
+  <div class="wrap" style="font-size:11px;color:#e67e22;font-family:var(--mono);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span>⚠️ RBA decision due Tuesday 5 May 2026 at 2:30pm AEST. Markets pricing 86% chance of hike to 4.35%. Update the RBA Cash Rate card after the announcement.</span>
+    <a href="https://www.rba.gov.au/monetary-policy/rba-board-minutes/" target="_blank" style="color:var(--gold);font-weight:700;text-decoration:none;">RBA Official Site →</a>
+    <button onclick="document.getElementById('rba-alert').classList.add('hidden')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;margin-left:auto;">✕</button>
+  </div>
+</div>
+
+<header>
+  <div class="wrap">
+    <div class="header-inner">
+      <div class="header-left">
+        <h1>MR MARKET'S MOOD BOARD</h1>
+        <div class="subtitle">A rational investor's view — data, not headlines</div>
+      </div>
+      <div class="header-right">
+        <div class="last-updated" id="last-updated">No data yet</div>
+        <div class="freshness-score" id="freshness-score"></div>
+        <button class="btn-sm" onclick="openQuickUpdate()" style="border-color:var(--border-mid)">⚡ Quick Update</button>
+        <button class="btn-refresh" onclick="refreshAll()">📡 REFRESH ALL DATA</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+<!-- CHARACTER SECTION -->
+<section id="character-section">
+  <div class="character-inner">
+
+    <!-- EUPHORIC SVG -->
+    <svg id="svg-euphoric" class="mr-svg mood-euphoric" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="18" y="55" fill="#f1c40f" font-size="20" font-family="serif">★</text>
+      <text x="163" y="42" fill="#f1c40f" font-size="16" font-family="serif">★</text>
+      <text x="175" y="98" fill="#f1c40f" font-size="11" font-family="serif">✦</text>
+      <text x="12" y="108" fill="#f1c40f" font-size="9" font-family="serif">✦</text>
+      <path d="M166 52 L156 32 L176 32 Z" fill="#f1c40f" opacity="0.85"/>
+      <rect x="162" y="52" width="8" height="14" rx="2" fill="#f1c40f" opacity="0.75"/>
+      <rect x="155" y="66" width="22" height="5" rx="2" fill="#f1c40f" opacity="0.75"/>
+      <circle cx="161" cy="28" r="2.5" fill="white" opacity="0.7"/>
+      <circle cx="168" cy="22" r="1.8" fill="white" opacity="0.6"/>
+      <circle cx="174" cy="28" r="1.5" fill="white" opacity="0.5"/>
+      <g transform="rotate(-18,100,78)">
+        <rect x="78" y="28" width="44" height="50" rx="4" fill="#2a1a00"/>
+        <rect x="78" y="68" width="44" height="9" rx="1" fill="#f1c40f" opacity="0.85"/>
+        <rect x="62" y="76" width="76" height="13" rx="3" fill="#1a1000"/>
+      </g>
+      <circle cx="100" cy="116" r="31" fill="#d4a574"/>
+      <ellipse cx="69" cy="116" rx="7" ry="9" fill="#c49055"/>
+      <ellipse cx="131" cy="116" rx="7" ry="9" fill="#c49055"/>
+      <path d="M84 109 Q93 103 102 109" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M98 109 Q107 103 116 109" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M83 128 Q100 145 117 128" stroke="#7a4020" stroke-width="2" fill="#e8a020" stroke-linecap="round"/>
+      <circle cx="81" cy="122" r="9" fill="#e8806a" opacity="0.4"/>
+      <circle cx="119" cy="122" r="9" fill="#e8806a" opacity="0.4"/>
+      <ellipse cx="100" cy="120" rx="4" ry="2.5" fill="#c49055"/>
+      <ellipse cx="100" cy="208" rx="54" ry="52" fill="#2a1a00"/>
+      <polygon points="87,176 100,202 74,200" fill="#1a1000" opacity="0.7"/>
+      <polygon points="113,176 100,202 126,200" fill="#1a1000" opacity="0.7"/>
+      <path d="M97 178 L100 203 L103 178" fill="#f1c40f" opacity="0.8"/>
+      <path d="M50 188 Q34 215 38 245" stroke="#d4a574" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="38" cy="247" r="10" fill="#d4a574"/>
+      <path d="M150 185 Q165 158 168 128" stroke="#d4a574" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="168" cy="124" r="9" fill="#d4a574"/>
+      <path d="M82 256 Q74 274 78 290" stroke="#1a1000" stroke-width="19" stroke-linecap="round"/>
+      <path d="M118 256 Q134 268 138 282" stroke="#1a1000" stroke-width="19" stroke-linecap="round"/>
+      <ellipse cx="76" cy="292" rx="17" ry="8" fill="#0f0a00"/>
+      <ellipse cx="140" cy="283" rx="17" ry="8" fill="#0f0a00" transform="rotate(-22,140,283)"/>
+    </svg>
+
+    <!-- OPTIMISTIC SVG -->
+    <svg id="svg-optimistic" class="mr-svg mood-optimistic" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="78" y="28" width="44" height="50" rx="4" fill="#1a1000"/>
+      <rect x="78" y="68" width="44" height="9" rx="1" fill="#e8a020" opacity="0.85"/>
+      <rect x="62" y="76" width="76" height="13" rx="3" fill="#0f0900"/>
+      <circle cx="100" cy="116" r="31" fill="#d4a574"/>
+      <ellipse cx="69" cy="116" rx="7" ry="9" fill="#c49055"/>
+      <ellipse cx="131" cy="116" rx="7" ry="9" fill="#c49055"/>
+      <circle cx="88" cy="110" r="5.5" fill="#333"/>
+      <circle cx="112" cy="110" r="5.5" fill="#333"/>
+      <circle cx="89.5" cy="108.5" r="2" fill="white"/>
+      <circle cx="113.5" cy="108.5" r="2" fill="white"/>
+      <path d="M85 128 Q100 143 115 128" stroke="#7a4020" stroke-width="2" fill="#e8a020" stroke-linecap="round"/>
+      <circle cx="82" cy="122" r="8" fill="#e8806a" opacity="0.35"/>
+      <circle cx="118" cy="122" r="8" fill="#e8806a" opacity="0.35"/>
+      <ellipse cx="100" cy="120" rx="4" ry="2.5" fill="#c49055"/>
+      <ellipse cx="100" cy="208" rx="54" ry="52" fill="#1a1000"/>
+      <polygon points="87,176 100,202 74,200" fill="#100900" opacity="0.7"/>
+      <polygon points="113,176 100,202 126,200" fill="#100900" opacity="0.7"/>
+      <path d="M97 178 L100 203 L103 178" fill="#e8a020" opacity="0.8"/>
+      <path d="M50 190 Q42 218 46 248" stroke="#d4a574" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="46" cy="250" r="10" fill="#d4a574"/>
+      <path d="M150 190 Q165 212 168 238" stroke="#d4a574" stroke-width="15" stroke-linecap="round"/>
+      <rect x="158" y="230" width="22" height="26" rx="8" fill="#d4a574"/>
+      <rect x="150" y="218" width="13" height="22" rx="6" fill="#d4a574"/>
+      <path d="M82 256 Q76 274 78 292" stroke="#0f0900" stroke-width="19" stroke-linecap="round"/>
+      <path d="M118 256 Q124 274 122 292" stroke="#0f0900" stroke-width="19" stroke-linecap="round"/>
+      <ellipse cx="76" cy="294" rx="17" ry="8" fill="#0a0700"/>
+      <ellipse cx="124" cy="294" rx="17" ry="8" fill="#0a0700"/>
+    </svg>
+
+    <!-- NEUTRAL SVG -->
+    <svg id="svg-neutral" class="mr-svg mood-neutral" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="30" y="234" width="140" height="14" rx="4" fill="#222230"/>
+      <rect x="152" y="188" width="16" height="62" rx="4" fill="#1a1a28"/>
+      <rect x="26" y="162" width="120" height="82" rx="4" fill="#e8e2d4"/>
+      <rect x="33" y="170" width="104" height="4" rx="2" fill="#333"/>
+      <rect x="33" y="179" width="88" height="3" rx="1" fill="#999"/>
+      <rect x="33" y="186" width="94" height="3" rx="1" fill="#999"/>
+      <rect x="33" y="193" width="78" height="3" rx="1" fill="#bbb"/>
+      <rect x="33" y="200" width="90" height="3" rx="1" fill="#bbb"/>
+      <rect x="33" y="207" width="74" height="3" rx="1" fill="#bbb"/>
+      <rect x="33" y="214" width="86" height="3" rx="1" fill="#ccc"/>
+      <rect x="78" y="28" width="44" height="50" rx="4" fill="#0f1218"/>
+      <rect x="78" y="68" width="44" height="9" rx="1" fill="#7f8fa6" opacity="0.85"/>
+      <rect x="62" y="76" width="76" height="13" rx="3" fill="#0a0d12"/>
+      <circle cx="100" cy="116" r="31" fill="#d4a574"/>
+      <ellipse cx="69" cy="116" rx="7" ry="9" fill="#c49055"/>
+      <ellipse cx="131" cy="116" rx="7" ry="9" fill="#c49055"/>
+      <ellipse cx="88" cy="113" rx="5" ry="5.5" fill="#333"/>
+      <ellipse cx="112" cy="113" rx="5" ry="5.5" fill="#333"/>
+      <circle cx="89.5" cy="111.5" r="1.8" fill="white"/>
+      <circle cx="113.5" cy="111.5" r="1.8" fill="white"/>
+      <line x1="88" y1="128" x2="112" y2="128" stroke="#8a6040" stroke-width="2.5" stroke-linecap="round"/>
+      <ellipse cx="100" cy="121" rx="4" ry="2.5" fill="#c49055"/>
+      <ellipse cx="100" cy="205" rx="54" ry="52" fill="#0f1218"/>
+      <polygon points="87,172 100,198 74,196" fill="#0a0d12" opacity="0.7"/>
+      <polygon points="113,172 100,198 126,196" fill="#0a0d12" opacity="0.7"/>
+      <path d="M97 174 L100 199 L103 174" fill="#7f8fa6" opacity="0.75"/>
+      <path d="M50 192 Q35 194 28 205" stroke="#d4a574" stroke-width="14" stroke-linecap="round"/>
+      <circle cx="27" cy="207" r="9" fill="#d4a574"/>
+      <path d="M150 192 Q152 195 148 208" stroke="#d4a574" stroke-width="14" stroke-linecap="round"/>
+      <circle cx="148" cy="210" r="9" fill="#d4a574"/>
+      <path d="M82 253 Q76 270 78 288" stroke="#0a0d12" stroke-width="19" stroke-linecap="round"/>
+      <path d="M118 253 Q124 270 122 288" stroke="#0a0d12" stroke-width="19" stroke-linecap="round"/>
+      <ellipse cx="76" cy="290" rx="17" ry="8" fill="#070910"/>
+      <ellipse cx="124" cy="290" rx="17" ry="8" fill="#070910"/>
+    </svg>
+
+    <!-- ANXIOUS SVG -->
+    <svg id="svg-anxious" class="mr-svg mood-anxious" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M140 88 Q143 79 138 74 Q133 79 136 88 Z" fill="#4a90d9" opacity="0.75"/>
+      <path d="M150 110 Q153 100 148 94 Q143 100 146 110 Z" fill="#4a90d9" opacity="0.65"/>
+      <path d="M145 73 Q148 65 144 61 Q140 65 142 73 Z" fill="#4a90d9" opacity="0.5"/>
+      <g transform="rotate(8,100,78)">
+        <rect x="78" y="28" width="44" height="50" rx="4" fill="#1a0e00"/>
+        <rect x="78" y="68" width="44" height="9" rx="1" fill="#e67e22" opacity="0.85"/>
+        <rect x="62" y="76" width="76" height="13" rx="3" fill="#100800"/>
+      </g>
+      <circle cx="100" cy="118" r="31" fill="#d4a574"/>
+      <ellipse cx="69" cy="118" rx="7" ry="9" fill="#c49055"/>
+      <ellipse cx="131" cy="118" rx="7" ry="9" fill="#c49055"/>
+      <ellipse cx="88" cy="114" rx="5" ry="5.5" fill="#333"/>
+      <ellipse cx="112" cy="114" rx="5" ry="5.5" fill="#333"/>
+      <circle cx="91" cy="113" r="2" fill="white"/>
+      <circle cx="115" cy="113" r="2" fill="white"/>
+      <path d="M82 106 Q88 101 94 104" stroke="#7a4020" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M106 104 Q112 101 118 106" stroke="#7a4020" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M88 132 Q100 124 112 132" stroke="#8a6040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="100" cy="121" rx="4" ry="2.5" fill="#c49055"/>
+      <ellipse cx="100" cy="212" rx="54" ry="52" fill="#1a0e00"/>
+      <polygon points="87,178 100,204 74,202" fill="#100800" opacity="0.7"/>
+      <polygon points="113,178 100,204 126,202" fill="#100800" opacity="0.7"/>
+      <path d="M97 180 L100 205 L103 180" fill="#e67e22" opacity="0.8" transform="rotate(12,100,192)"/>
+      <path d="M50 194 Q38 216 42 248" stroke="#d4a574" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="42" cy="250" r="10" fill="#d4a574"/>
+      <path d="M150 194 Q162 216 158 248" stroke="#d4a574" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="158" cy="250" r="10" fill="#d4a574"/>
+      <path d="M82 260 Q76 276 78 294" stroke="#100800" stroke-width="19" stroke-linecap="round"/>
+      <path d="M118 260 Q124 276 122 294" stroke="#100800" stroke-width="19" stroke-linecap="round"/>
+      <ellipse cx="76" cy="296" rx="17" ry="8" fill="#0a0500"/>
+      <ellipse cx="124" cy="296" rx="17" ry="8" fill="#0a0500"/>
+    </svg>
+
+    <!-- PANICKING SVG -->
+    <svg id="svg-panicking" class="mr-svg mood-panicking" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="12" y="55" width="28" height="20" rx="2" fill="#e8e2d4" transform="rotate(-28,26,65)"/>
+      <rect x="158" y="75" width="24" height="18" rx="2" fill="#e8e2d4" transform="rotate(32,170,84)"/>
+      <rect x="8" y="138" width="22" height="16" rx="2" fill="#e8e2d4" transform="rotate(-18,19,146)"/>
+      <rect x="162" y="138" width="20" height="15" rx="2" fill="#e8e2d4" transform="rotate(22,172,145)"/>
+      <line x1="4" y1="118" x2="28" y2="118" stroke="#c0392b" stroke-width="2" opacity="0.28"/>
+      <line x1="4" y1="138" x2="24" y2="138" stroke="#c0392b" stroke-width="2" opacity="0.22"/>
+      <line x1="4" y1="158" x2="30" y2="158" stroke="#c0392b" stroke-width="2" opacity="0.18"/>
+      <g transform="rotate(-38,128,52)">
+        <rect x="90" y="14" width="44" height="50" rx="4" fill="#1a0000"/>
+        <rect x="90" y="54" width="44" height="9" rx="1" fill="#c0392b" opacity="0.85"/>
+        <rect x="74" y="62" width="76" height="13" rx="3" fill="#100000"/>
+      </g>
+      <circle cx="105" cy="112" r="31" fill="#d4a574"/>
+      <ellipse cx="74" cy="113" rx="7" ry="9" fill="#c49055"/>
+      <ellipse cx="136" cy="112" rx="7" ry="9" fill="#c49055"/>
+      <line x1="97" y1="82" x2="94" y2="67" stroke="#5a3820" stroke-width="3" stroke-linecap="round"/>
+      <line x1="106" y1="81" x2="108" y2="65" stroke="#5a3820" stroke-width="3" stroke-linecap="round"/>
+      <line x1="115" y1="84" x2="120" y2="69" stroke="#5a3820" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="93" cy="109" r="7.5" fill="white"/>
+      <circle cx="93" cy="110" r="4.5" fill="#333"/>
+      <circle cx="117" cy="109" r="7.5" fill="white"/>
+      <circle cx="117" cy="110" r="4.5" fill="#333"/>
+      <circle cx="95" cy="107.5" r="1.5" fill="white"/>
+      <circle cx="119" cy="107.5" r="1.5" fill="white"/>
+      <ellipse cx="105" cy="128" rx="11" ry="13" fill="#2a0000"/>
+      <ellipse cx="105" cy="124" rx="7.5" ry="4.5" fill="#c0392b" opacity="0.5"/>
+      <ellipse cx="105" cy="120" rx="4" ry="2.5" fill="#c49055"/>
+      <ellipse cx="100" cy="210" rx="54" ry="52" fill="#1a0000"/>
+      <polygon points="87,176 100,202 74,200" fill="#100000" opacity="0.7"/>
+      <polygon points="113,176 100,202 126,200" fill="#100000" opacity="0.7"/>
+      <path d="M97 178 L100 203 L103 178" fill="#c0392b" opacity="0.8"/>
+      <path d="M50 192 Q32 165 26 138" stroke="#d4a574" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="25" cy="136" r="10" fill="#d4a574"/>
+      <path d="M150 192 Q168 165 174 138" stroke="#d4a574" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="174" cy="136" r="10" fill="#d4a574"/>
+      <path d="M82 258 Q65 270 60 287" stroke="#100000" stroke-width="19" stroke-linecap="round"/>
+      <path d="M118 258 Q134 242 142 256" stroke="#100000" stroke-width="19" stroke-linecap="round"/>
+      <ellipse cx="58" cy="289" rx="17" ry="8" fill="#0a0000" transform="rotate(-18,58,289)"/>
+      <ellipse cx="143" cy="258" rx="17" ry="8" fill="#0a0000" transform="rotate(28,143,258)"/>
+    </svg>
+
+    <div class="mood-label" id="mood-label" style="color: var(--gold)">—</div>
+    <div class="mood-quote" id="mood-quote"></div>
+    <div class="score-display" id="score-display">—</div>
+    <div class="score-label">OVERALL SENTIMENT SCORE (0 = PANIC · 100 = EUPHORIA)</div>
+
+    <div class="meter-wrap">
+      <div class="meter-labels"><span>◀ FEAR</span><span>GREED ▶</span></div>
+      <div class="meter-bar"><div class="meter-needle" id="meter-needle" style="left:50%"></div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-sep">
+
+<!-- INDICATORS -->
+<section id="indicators-section">
+  <div class="section-head"><div class="section-title">Market Indicators</div></div>
+  <div class="indicators-columns">
+    <div>
+      <div class="col-label">🇦🇺 Australia</div>
+      <div class="cards-col" id="au-cards"></div>
+    </div>
+    <div>
+      <div class="col-label">🇺🇸 United States</div>
+      <div class="cards-col" id="us-cards"></div>
+    </div>
+  </div>
+  <div class="col-label">🌍 Global Macro</div>
+  <div class="macro-grid" id="macro-cards"></div>
+</section>
+
+<hr class="section-sep" style="margin:24px 0;">
+
+<!-- ACTION PANEL -->
+<section id="action-section"></section>
+
+<hr class="section-sep" style="margin:0 0 24px;">
+<section id="calendar-section">
+  <div class="section-head">
+    <div class="section-title">📅 Upcoming Data Releases</div>
+    <button class="btn-sm" id="calendar-toggle" onclick="toggleCalendar()">Show Calendar</button>
+  </div>
+  <div id="calendar-content" class="hidden"></div>
+</section>
+
+<hr class="section-sep" style="margin:0 0 24px;">
+
+<!-- PORTFOLIO -->
+<section id="portfolio-section">
+  <div class="section-head">
+    <div class="section-title">My Portfolio</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn-sm" onclick="openAddPortfolio()">+ Add Holding</button>
+      <button class="btn-sm" onclick="refreshPortfolioPrices()">↻ Refresh Prices</button>
+    </div>
+  </div>
+  <div class="portfolio-table-wrap" id="portfolio-wrap"></div>
+  <div id="portfolio-summary"></div>
+</section>
+
+<hr class="section-sep" style="margin:0 0 24px;">
+
+<!-- HISTORY -->
+<section id="history-section">
+  <div class="section-head">
+    <div class="section-title">Sentiment History</div>
+    <button class="btn-sm" id="history-toggle" onclick="toggleHistory()">📊 Show History</button>
+  </div>
+  <div class="history-content hidden" id="history-content"></div>
+</section>
+
+</div><!-- /wrap -->
+</main>
+
+<!-- PHILOSOPHY TICKER -->
+<div class="ticker-outer">
+  <div class="ticker-track" id="ticker-track"></div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-inner">
+      <div class="footer-sources">
+        <div class="footer-col">
+          <h4>Live Data (API)</h4>
+          <ul>
+            <li>ASX 200 · Yahoo Finance</li>
+            <li>S&amp;P 500 · Yahoo Finance</li>
+            <li>VIX · Yahoo Finance</li>
+            <li>Gold · Yahoo Finance</li>
+            <li>Oil (WTI) · Yahoo Finance</li>
+            <li>10-Yr Treasury · Yahoo Finance</li>
+            <li>Bitcoin · CoinGecko</li>
+            <li>AUD/USD · ExchangeRate-API</li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Manual Entry</h4>
+          <ul>
+            <li>AU Unemployment (ABS)</li>
+            <li>AU CPI (ABS)</li>
+            <li>RBA Cash Rate</li>
+            <li>Consumer Confidence (ANZ-Roy Morgan)</li>
+            <li>US Unemployment (BLS)</li>
+            <li>US CPI (BLS)</li>
+            <li>Fed Funds Rate (FOMC)</li>
+            <li>US Debt / GDP (CBO)</li>
+          </ul>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+        <button class="btn-export" onclick="exportSnapshot()">📄 Export Snapshot</button>
+        <button class="btn-export" onclick="exportMetricsJson()">⬇ Export Metrics JSON</button>
+        <div style="font-size:10px;color:var(--text-faint);font-family:var(--mono);">All portfolio data stored locally only.</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Seed data written by fetch-market-data.mjs — works from file:// unlike fetch() -->
+<script src="./data/market-data.js" onerror="window.MARKET_SEED_DATA=null"></script>
+<script>
+// ══════════════════════════════════════════════════════
+// INDICATOR CONFIGURATION
+// ══════════════════════════════════════════════════════
+const IND = {
+  asx200:          { label:'ASX 200', section:'au', auto:true, symbol:'^AXJO', defaultVal:null, fmt:v=>''+Math.round(v).toLocaleString(), getStatus:v=>v>=7800?'healthy':v>=7000?'caution':'warning', scoreKey:'asx200', scoreW:0.08, sources:[{label:'Yahoo Finance',url:'https://finance.yahoo.com/quote/%5EAXJO'},{label:'ASX Markets',url:'https://www.asx.com.au/markets/trade-our-shares/market-statistics/asx-all-ordinaries-50-200'}], interpret:{healthy:'Above 7,800 — market in strong uptrend.',caution:'7,000–7,800 — mid-range, watch key levels.',warning:'Below 7,000 — correction territory, significant risk.'} },
+  auUnemployment:  { label:'AU Unemployment', section:'au', auto:false, defaultVal:4.3, fmt:v=>v.toFixed(1)+'%', getStatus:v=>v<4.5?'healthy':v<=5.5?'caution':'warning', scoreKey:null, scoreW:0, sources:[{label:'ABS Labour Force',url:'https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release'},{label:'Trading Economics',url:'https://tradingeconomics.com/australia/unemployment-rate'},{label:'RBA Statistics',url:'https://www.rba.gov.au/statistics/labour-market/'}], reminder:{days:35,msg:'ABS Labour Force releases monthly (~3rd Thursday). Check latest:',link:{label:'ABS Labour Force',url:'https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release'}}, interpret:{healthy:'Below 4.5% — tight labour market. Rose from 4.1% in Jan to 4.3% in Feb–Mar.',caution:'Rising unemployment adding household pressure.',warning:'Above 5.5% — broad economic stress.'} },
+  auInflation:     { label:'AU CPI (Annual)', section:'au', auto:false, defaultVal:4.6, fmt:v=>v.toFixed(1)+'%', getStatus:v=>(v>=2&&v<=3)?'healthy':(v>=1&&v<2)||(v>3&&v<=4.5)?'caution':'warning', scoreKey:'auInflation', scoreW:0.07, sources:[{label:'ABS CPI Quarterly',url:'https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release'},{label:'ABS Monthly CPI',url:'https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-cpi-indicator/latest-release'},{label:'RBA Inflation',url:'https://www.rba.gov.au/inflation/'},{label:'Trading Economics',url:'https://tradingeconomics.com/australia/inflation-cpi'}], reminder:{days:90,msg:'ABS CPI releases quarterly (Jan/Apr/Jul/Oct). Check latest:',link:{label:'ABS CPI',url:'https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release'}}, interpret:{healthy:'2–3% — within RBA target band.',caution:'Outside target — RBA under pressure.',warning:'Jumped to 4.6% in March (fuel +8.9%, housing +6.5%). Trimmed mean at 3.3%.'} },
+  rbaRate:         { label:'RBA Cash Rate', section:'au', auto:false, defaultVal:4.10, fmt:v=>v.toFixed(2)+'%', getStatus:v=>(v>=2&&v<=3.5)?'healthy':((v>3.5&&v<=4.5)||(v>=1&&v<2))?'caution':'warning', scoreKey:'rbaRate', scoreW:0.05, sources:[{label:'RBA Cash Rate',url:'https://www.rba.gov.au/statistics/cash-rate/'},{label:'RBA Board Minutes',url:'https://www.rba.gov.au/monetary-policy/rba-board-minutes/'},{label:'ASX Rate Tracker',url:'https://www.asx.com.au/markets/trade-our-derivatives-market/futures-market/rba-rate-indicator'}], reminder:{days:40,msg:'RBA meets ~8 times/year. Check latest decision:',link:{label:'RBA Board Minutes',url:'https://www.rba.gov.au/monetary-policy/rba-board-minutes/'}}, interpret:{healthy:'2–3.5% — neutral rate, growth-supportive.',caution:'Rate at restrictive levels, transmission risk.',warning:'Above 4.5% — severely restrictive. Growth at risk.'} },
+  auConsumerConf:  { label:'Consumer Confidence', section:'au', auto:false, defaultVal:63.1, fmt:v=>v.toFixed(1), getStatus:v=>v>=100?'healthy':v>=75?'caution':'warning', scoreKey:'auConsumerConf', scoreW:0.10, sources:[{label:'Roy Morgan',url:'https://www.roymorgan.com/findings/consumer-confidence'},{label:'Westpac-MI Sentiment',url:'https://www.westpac.com.au/about-westpac/media/reports/consumer-sentiment/'},{label:'Trading Economics',url:'https://tradingeconomics.com/australia/consumer-confidence'}], reminder:{days:10,msg:'ANZ-Roy Morgan Confidence releases weekly (Tuesday). Check latest:',link:{label:'Roy Morgan',url:'https://www.roymorgan.com/findings/consumer-confidence'}}, interpret:{healthy:'Above 100 — consumers optimistic.',caution:'75–100 — subdued. Cautious spending ahead.',warning:'Below 75 — historic pessimism at 50-year lows.'} },
+  audUsd:          { label:'AUD / USD', section:'au', auto:true, symbol:'AUDUSD', defaultVal:null, fmt:v=>v.toFixed(4), getStatus:v=>v>=0.68?'healthy':v>=0.62?'caution':'warning', scoreKey:'audUsd', scoreW:0.07, sources:[{label:'ExchangeRate-API',url:'https://open.er-api.com'},{label:'RBA Exchange Rates',url:'https://www.rba.gov.au/statistics/frequency/exchange-rates.html'},{label:'Trading Economics',url:'https://tradingeconomics.com/audusd:cur'}], interpret:{healthy:'Above 0.68 — AUD strong, commodity demand healthy.',caution:'0.62–0.68 — AUD soft, import costs rising.',warning:'Below 0.62 — AUD weak, significant inflationary pressure.'} },
+  rbaMarketExp:    { label:'Market Rate Expectation', section:'au', auto:false, defaultVal:null, fmt:v=>String(v), getStatus:(v,ex)=>{if(!ex||!ex.direction)return'caution';return ex.direction==='cut'?'healthy':ex.direction==='hold'?'caution':'warning';}, scoreKey:null, scoreW:0, hasExtra:null, sources:[{label:'ASX RBA Rate Indicator',url:'https://www.asx.com.au/markets/trade-our-derivatives-market/futures-market/rba-rate-indicator'},{label:'RBA Board Decisions',url:'https://www.rba.gov.au/monetary-policy/rba-board-minutes/'}], interpret:{healthy:'Market expects rate cut — easing ahead.',caution:'Market expects hold — no change priced in.',warning:'Market expects hike — tightening pressure.'} },
+  sp500:           { label:'S&P 500', section:'us', auto:true, symbol:'^GSPC', defaultVal:null, fmt:v=>''+Math.round(v).toLocaleString(), getStatus:(v,ex)=>{const pe=(ex&&ex.pe!=null)?ex.pe:26;return pe<22?'healthy':pe<=30?'caution':'warning';}, scoreKey:'sp500', scoreW:0.12, hasExtra:{peDefault:26.0}, sources:[{label:'Yahoo Finance',url:'https://finance.yahoo.com/quote/%5EGSPC'},{label:'Multpl P/E Ratio',url:'https://www.multpl.com/shiller-pe'},{label:'Trading Economics',url:'https://tradingeconomics.com/united-states/stock-market'}], interpret:{healthy:'P/E < 22 — market reasonably valued.',caution:'P/E 22–30 — stretched valuation. Stay disciplined.',warning:'P/E > 30 — historically expensive. Reduce exposure.'} },
+  usUnemployment:  { label:'US Unemployment', section:'us', auto:false, defaultVal:4.4, fmt:v=>v.toFixed(1)+'%', getStatus:v=>v<4.5?'healthy':v<=6?'caution':'warning', scoreKey:'usUnemployment', scoreW:0.08, sources:[{label:'BLS Official',url:'https://www.bls.gov/news.release/empsit.nr0.htm'},{label:'FRED UNRATE',url:'https://fred.stlouisfed.org/series/UNRATE'},{label:'Trading Economics',url:'https://tradingeconomics.com/united-states/unemployment-rate'}], reminder:{days:35,msg:'BLS releases jobs report monthly (1st Friday). Check latest:',link:{label:'BLS Jobs Report',url:'https://www.bls.gov/news.release/empsit.nr0.htm'}}, interpret:{healthy:'Below 4.5% — US labour market robust.',caution:'4.5–6% — cooling. Consumer stress building.',warning:'Above 6% — recession conditions in US.'} },
+  usInflation:     { label:'US CPI (Annual)', section:'us', auto:false, defaultVal:3.0, fmt:v=>v.toFixed(1)+'%', getStatus:v=>(v>=2&&v<=2.5)?'healthy':((v>2.5&&v<=4)||(v>=1&&v<2))?'caution':'warning', scoreKey:'usInflation', scoreW:0.07, sources:[{label:'BLS CPI',url:'https://www.bls.gov/cpi/'},{label:'FRED CPIAUCSL',url:'https://fred.stlouisfed.org/series/CPIAUCSL'},{label:'Cleveland Fed Nowcast',url:'https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting'}], reminder:{days:35,msg:'BLS releases CPI monthly (~2nd Wednesday). Check latest:',link:{label:'BLS CPI',url:'https://www.bls.gov/cpi/'}}, interpret:{healthy:'2–2.5% — Fed on target. Soft landing achieved.',caution:'Sticky above Fed 2% target. Tariff-driven persistence expected through 2026.',warning:'Above 4% — purchasing power destruction.'} },
+  fedRate:         { label:'Fed Funds Rate', section:'us', auto:false, defaultVal:4.375, fmt:v=>v.toFixed(2)+'%', getStatus:v=>(v>=2&&v<=3.5)?'healthy':((v>3.5&&v<=4.5)||(v>=1&&v<2))?'caution':'warning', scoreKey:'fedRate', scoreW:0.05, sources:[{label:'Federal Reserve',url:'https://www.federalreserve.gov/monetarypolicy/openmarket.htm'},{label:'FRED FEDFUNDS',url:'https://fred.stlouisfed.org/series/FEDFUNDS'},{label:'CME FedWatch',url:'https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html'}], reminder:{days:50,msg:'Fed meets every ~6 weeks. Check latest FOMC decision:',link:{label:'FOMC Decisions',url:'https://www.federalreserve.gov/monetarypolicy/openmarket.htm'}}, interpret:{healthy:'2–3.5% — growth-supportive monetary policy.',caution:'3.5–4.5% — restrictive. Watch for cracks.',warning:'Above 4.5% — highly restrictive. Something breaks.'} },
+  usDebtGdp:       { label:'US Debt / GDP', section:'us', auto:false, defaultVal:122.3, fmt:v=>v.toFixed(1)+'%', getStatus:v=>v<80?'healthy':v<=105?'caution':'warning', scoreKey:'usDebtGdp', scoreW:0.04, sources:[{label:'FRED Debt/GDP',url:'https://fred.stlouisfed.org/series/GFDEGDQ188S'},{label:'US Treasury',url:'https://fiscaldata.treasury.gov/datasets/debt-to-the-penny/'},{label:'CBO Budget',url:'https://www.cbo.gov/topics/budget'}], reminder:{days:95,msg:'US Debt/GDP updates quarterly. Check latest:',link:{label:'FRED Debt/GDP',url:'https://fred.stlouisfed.org/series/GFDEGDQ188S'}}, interpret:{healthy:'Below 80% — sustainable trajectory.',caution:'80–105% — elevated, debt ceiling risks.',warning:'Above 105% — historically dangerous.'} },
+  vix:             { label:'VIX — Fear Index', section:'us', auto:true, symbol:'^VIX', defaultVal:null, fmt:v=>v.toFixed(1), getStatus:v=>v<15?'healthy':v<=25?'caution':'warning', scoreKey:'vix', scoreW:0.15, featured:true, sources:[{label:'Yahoo Finance VIX',url:'https://finance.yahoo.com/quote/%5EVIX'},{label:'CBOE VIX',url:'https://www.cboe.com/tradable_products/vix/'},{label:'Trading Economics',url:'https://tradingeconomics.com/united-states/stock-market-volatility-vix'}], interpret:{healthy:'Below 15 — complacency. Market pricing no risk.',caution:'15–25 — elevated. Uncertainty in the system.',warning:'Above 25 — fear dominant. Historically a buy signal.'} },
+  gold:            { label:'Gold (USD / oz)', section:'macro', auto:true, symbol:'GC=F', defaultVal:null, fmt:v=>'$'+Math.round(v).toLocaleString(), getStatus:v=>v<2500?'healthy':v<=3000?'caution':'warning', scoreKey:'gold', scoreW:0.08, sources:[{label:'Yahoo Finance GC=F',url:'https://finance.yahoo.com/quote/GC%3DF'},{label:'Kitco Gold',url:'https://www.kitco.com/gold-price-today-usa/'},{label:'Trading Economics',url:'https://tradingeconomics.com/commodity/gold'}], interpret:{healthy:'Below $2,500 — moderate safe-haven demand.',caution:'$2,500–$3,000 — fear elevated, gold bid strongly.',warning:'Above $3,000 — extreme fear. System under stress.'} },
+  oil:             { label:'WTI Crude (USD/bbl)', section:'macro', auto:true, symbol:'CL=F', defaultVal:null, fmt:v=>'$'+Math.round(v), getStatus:v=>(v>=60&&v<=80)?'healthy':((v>80&&v<=95)||(v>=50&&v<60))?'caution':'warning', scoreKey:'oil', scoreW:0.04, sources:[{label:'Yahoo Finance CL=F',url:'https://finance.yahoo.com/quote/CL%3DF'},{label:'EIA Crude Oil',url:'https://www.eia.gov/petroleum/heatingoil.php'},{label:'Trading Economics',url:'https://tradingeconomics.com/commodity/crude-oil'}], interpret:{healthy:'$60–$80 — Goldilocks range, growth-supportive.',caution:'Oil at extremes — inflationary or demand signal.',warning:'Extreme price — demand collapse or supply shock.'} },
+  treasury10y:     { label:'US 10-Year Yield', section:'macro', auto:false, symbol:'^TNX', defaultVal:4.35, fmt:v=>v.toFixed(2)+'%', getStatus:v=>(v>=2&&v<=4)?'healthy':(v>4&&v<=5)?'caution':'warning', scoreKey:null, scoreW:0, sources:[{label:'Yahoo Finance TNX',url:'https://finance.yahoo.com/quote/%5ETNX'},{label:'FRED DGS10',url:'https://fred.stlouisfed.org/series/DGS10'},{label:'US Treasury',url:'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/'}], interpret:{healthy:'2–4% — yields normal, curve healthy.',caution:'4–5% — elevated yields pressuring borrowing costs.',warning:'Above 5% — risk of financial system stress.'} },
+  bitcoin:         { label:'Bitcoin — Risk Appetite', section:'macro', auto:true, symbol:'BTC-USD', defaultVal:null, fmt:v=>'$'+Math.round(v).toLocaleString(), getStatus:(v,ex)=>{if(!ex||ex.change24h==null)return'caution';return ex.change24h>2?'healthy':ex.change24h>-5?'caution':'warning';}, scoreKey:null, scoreW:0, sources:[{label:'CoinGecko',url:'https://www.coingecko.com/en/coins/bitcoin'},{label:'Trading Economics',url:'https://tradingeconomics.com/btcusd:cur'}], interpret:{healthy:'BTC rising — risk-on, appetite for growth.',caution:'BTC flat — uncertain risk appetite.',warning:'BTC falling sharply — risk-off de-risking underway.'} },
+};
+
+const QUOTES = {
+  EUPHORIC:  ['When everyone is greedy, it is time to be fearful. — Warren Buffett','The market is a device for transferring money from the impatient to the patient. — Warren Buffett','The time to buy is when there\'s blood in the streets. But right now, no blood. — Baron Rothschild (adapted)','Trees don\'t grow to the sky. Neither do bull markets.'],
+  OPTIMISTIC:['Conditions are reasonable but cycles always turn. Stay disciplined.','DCA steadily. The exit is never as obvious as it seems from here.','Complacency is the investor\'s silent enemy.','Good times are the best time to stress-test your conviction.'],
+  NEUTRAL:   ['In the short run, the market is a voting machine. In the long run, a weighing machine. — Graham','Mr Market is calm. Don\'t let headlines disturb the data.','The plan works best when you stick to it when it\'s boring.','This is the most productive sentiment: neither fear nor greed.'],
+  ANXIOUS:   ['Be fearful when others are greedy, greedy when others are fearful. — Warren Buffett','Do not confuse price with value. They diverge precisely now.','Volatility is the price you pay for returns. The invoice has arrived.','Every great buying opportunity began as a moment of fear.'],
+  PANICKING: ['Maximum fear is maximum opportunity — if you have the courage and the cash. — Shelby Davis','Fortunes are made in bear markets; they are collected in bull markets.','This is what the plan was built for. Deploy dry powder into quality.','The stock market is the only store where customers run out when things go on sale.'],
+};
+
+const ACTION_TEXT = {
+  EUPHORIC:  { head:'⚠ Trim Winners — Mr Market is Dangerously Optimistic', text:'Mr Market is in full euphoria. This is not the time to add new positions in expensive assets. Consider trimming 25–35% of your largest winners. Build your cash reserve. Gold and defensive assets make sense here. Remember: the time to be greedy is when others are fearful — not now. Review your CGT dates before you act.' },
+  OPTIMISTIC:{ head:'Conditions Reasonable — Stay Disciplined', text:'Conditions are reasonable but stretched. Continue your DCA plan but don\'t add aggressively to US tech or high-multiple growth. Watch your CGT dates. Keep some powder dry. The cycle turns when you least expect it — maintain your allocation targets.' },
+  NEUTRAL:   { head:'Steady Conditions — Stick to the Plan', text:'Mr Market is calm. This is the ideal environment for steady DCA accumulation. Stick to your plan. Don\'t let news headlines distract you from the data in front of you. Review your portfolio allocation — rebalance if significantly off-target.' },
+  ANXIOUS:   { head:'Fear Entering — Discipline Separates Investors from Speculators', text:'Fear is entering the market. Don\'t panic sell. Review your CGT position — any holdings at a loss worth harvesting before June 30? If your financial position is secure, begin slowly accumulating quality assets. VAS, VOO, and quality ETFs bought at fear prices have always recovered.' },
+  PANICKING: { head:'🟢 Maximum Fear = Maximum Opportunity — Deploy Dry Powder', text:'Mr Market is in full panic. Historically, this is where generational wealth is made — if you have the courage and the cash. Deploy your dry powder into quality index ETFs. VAS, A200, VOO bought at panic prices have always recovered. Check your IBIT/loss positions for tax harvesting before June 30. This is the moment the plan was built for.' },
+};
+
+const PHILOSOPHY = [
+  'Data beats headlines. The numbers tell the truth; the news tells a story.',
+  'Mr Market is emotional. You are rational. That is your edge.',
+  'The best investments are made when the dashboard is red and the news is terrifying.',
+  'The worst investments are made when the dashboard is green and everyone is excited.',
+  'CGT awareness is part of intelligent investing — protect gains legally and systematically.',
+  'DCA through volatility. Never stop the plan because of fear.',
+];
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let STATE = { indicators:{}, portfolio:[], history:[], lastUpdated:null };
+let editingPortfolioId = null;
+let historyVisible = false;
+let calendarVisible = false;
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('mrmarket_v2');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      STATE = Object.assign({ indicators:{}, portfolio:[], history:[], lastUpdated:null }, saved);
+    }
+  } catch(e) {}
+  // Fill defaults for manual indicators not yet set
+  for (const [id, conf] of Object.entries(IND)) {
+    if (!conf.auto && conf.defaultVal != null && (!STATE.indicators[id] || STATE.indicators[id].value == null)) {
+      const v = conf.defaultVal;
+      const ex = conf.hasExtra ? { pe: conf.hasExtra.peDefault } : undefined;
+      STATE.indicators[id] = { value:v, status:conf.getStatus(v, ex), isManual:true, extra:ex||null, lastFetched:null };
+    }
+    if (conf.hasExtra && STATE.indicators[id] && !STATE.indicators[id].extra) {
+      STATE.indicators[id].extra = { pe: conf.hasExtra.peDefault };
+    }
+  }
+  // Pre-fill rbaMarketExp if not already in localStorage
+  if (!STATE.indicators['rbaMarketExp'] || STATE.indicators['rbaMarketExp'].value == null) {
+    STATE.indicators['rbaMarketExp'] = { value:'86% chance of 25bp hike to 4.35%', status:'warning', isManual:true, extra:{direction:'hike',probability:86,targetRate:4.35}, lastFetched:null, stale:false };
+  }
+}
+
+function saveState() {
+  try { localStorage.setItem('mrmarket_v2', JSON.stringify(STATE)); } catch(e) {}
+}
+
+function setIndicator(id, value, extra, isManual, isStale) {
+  const conf = IND[id];
+  const status = conf.getStatus(value, extra || (STATE.indicators[id]&&STATE.indicators[id].extra));
+  STATE.indicators[id] = {
+    value, status,
+    isManual: isManual || false,
+    extra: extra || (STATE.indicators[id]&&STATE.indicators[id].extra) || null,
+    lastFetched: isStale ? (STATE.indicators[id]&&STATE.indicators[id].lastFetched) : new Date().toISOString(),
+    stale: isStale || false,
+    prevClose: STATE.indicators[id]?.prevClose || null,
+    changePct: STATE.indicators[id]?.changePct || null,
+    high52w: STATE.indicators[id]?.high52w || null,
+    low52w: STATE.indicators[id]?.low52w || null,
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// API
+// ══════════════════════════════════════════════════════
+// Yahoo Finance — only works server-side (no CORS headers).
+// Used for portfolio price refresh where a best-effort attempt is fine.
+// Primary market data comes from data/market-data.js via <script> tag.
+async function fetchYahoo(symbol) {
+  try {
+    const r = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=5d`,
+      { signal: AbortSignal.timeout(7000) }
+    );
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (!d?.chart?.result?.[0]) return null;
+    const meta = d.chart.result[0].meta;
+    const price = meta.regularMarketPrice;
+    const prevClose = meta.chartPreviousClose || meta.previousClose || price;
+    return { price, prevClose, changePct: ((price - prevClose) / prevClose) * 100, high52w: meta.fiftyTwoWeekHigh, low52w: meta.fiftyTwoWeekLow };
+  } catch(_) { return null; }
+}
+
+async function fetchExchangeRate() {
+  try {
+    const r = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(7000) });
+    const d = await r.json();
+    if (d.result !== 'success') return null;
+    return 1 / d.rates.AUD;
+  } catch(_) { return null; }
+}
+
+async function fetchBitcoin() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true', { signal: AbortSignal.timeout(9000) });
+    const d = await r.json();
+    return { price: d.bitcoin.usd, change24h: d.bitcoin.usd_24h_change };
+  } catch(_) { return null; }
+}
+
+// BLS (Bureau of Labor Statistics) — CORS-friendly (Access-Control-Allow-Origin: *), no key required
+// Works from file:// and GitHub Pages. Returns latest non-null value for a series.
+async function fetchBls(seriesId) {
+  try {
+    const r = await fetch(`https://api.bls.gov/publicAPI/v2/timeseries/data/${seriesId}`, { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const data = d?.Results?.series?.[0]?.data;
+    if (!Array.isArray(data)) return null;
+    const latest = data.find(e => e.value !== '-' && !isNaN(parseFloat(e.value)));
+    return latest ? parseFloat(latest.value) : null;
+  } catch(_) { return null; }
+}
+
+// Load pre-fetched data from data/market-data.js (script tag, works from file://)
+// or fall back to fetch data/market.json (works on HTTP servers / GitHub Pages)
+async function loadStaticData() {
+  try {
+    let d = (typeof window.MARKET_SEED_DATA !== 'undefined') ? window.MARKET_SEED_DATA : null;
+    if (!d) {
+      try {
+        const r = await fetch('./data/market.json', { signal: AbortSignal.timeout(4000) });
+        if (r.ok) d = await r.json();
+      } catch(_) {}
+    }
+    if (!d?.indicators || !d?.fetched) return;
+    const ageHrs = (Date.now() - new Date(d.fetched).getTime()) / 3600000;
+    if (ageHrs > 72) return; // ignore data older than 3 days
+
+    for (const [id, val] of Object.entries(d.indicators)) {
+      if (!val || val.price == null) continue;
+      const conf = IND[id];
+      if (!conf) continue;
+      const extra = id === 'sp500'   ? (STATE.indicators[id]?.extra || {pe:26.0}) :
+                    id === 'bitcoin' ? {change24h: val.change24h ?? null} : null;
+      STATE.indicators[id] = {
+        value: val.price,
+        status: conf.getStatus(val.price, extra),
+        isManual: false, extra,
+        lastFetched: d.fetched,
+        stale: ageHrs > 12,
+        changePct: val.changePct ?? null,
+        high52w:   val.high52w  ?? null,
+        low52w:    val.low52w   ?? null,
+      };
+    }
+    if (!STATE.lastUpdated || new Date(d.fetched) > new Date(STATE.lastUpdated)) {
+      STATE.lastUpdated = d.fetched;
+    }
+  } catch(_) {}
+}
+
+async function refreshAll() {
+  showLoading(true);
+  try {
+    // 1. Seed with GitHub Action pre-fetched data (fast, covers Yahoo Finance symbols)
+    await loadStaticData();
+
+    const tasks = [];
+
+    tasks.push((async()=>{
+      const res = await fetchExchangeRate();
+      if (res != null) {
+        const ind = STATE.indicators['audUsd'] || {};
+        STATE.indicators['audUsd'] = { value:res, status:IND.audUsd.getStatus(res), isManual:false, extra:null, lastFetched:new Date().toISOString(), stale:false, changePct:ind.changePct||null };
+      }
+    })());
+
+    tasks.push((async()=>{
+      const res = await fetchBitcoin();
+      if (res != null) {
+        STATE.indicators['bitcoin'] = { value:res.price, status:IND.bitcoin.getStatus(res.price,{change24h:res.change24h}), isManual:false, extra:{change24h:res.change24h}, lastFetched:new Date().toISOString(), stale:false };
+      }
+    })());
+
+    // 2. BLS — US unemployment rate (CORS-friendly, works from file:// and GitHub Pages)
+    tasks.push((async()=>{
+      const val = await fetchBls('LNS14000000');
+      if (val != null) STATE.indicators['usUnemployment'] = { value:val, status:IND.usUnemployment.getStatus(val), isManual:false, extra:null, lastFetched:new Date().toISOString(), stale:false };
+    })());
+
+    // 3. FRED CSV — fedRate and usDebtGdp
+    for (const [iid, sid] of [['fedRate','FEDFUNDS'],['usDebtGdp','GFDEGDQ188S']]) {
+      tasks.push((async(id, series)=>{
+        const val = await fetchFredCsv(series);
+        if (val != null) {
+          STATE.indicators[id] = { value:val, status:IND[id].getStatus(val), isManual:false, extra:null, lastFetched:new Date().toISOString(), stale:false };
+        }
+      })(iid, sid));
+    }
+
+    // Yahoo Finance symbols (asx200, sp500, vix, gold, oil, treasury10y) are
+    // not fetched client-side — Yahoo blocks all CORS proxy requests.
+    // Their values come from data/market-data.js written by fetch-market-data.mjs.
+
+    await Promise.allSettled(tasks);
+    STATE.lastUpdated = new Date().toISOString();
+
+    // Snapshot history
+    const score = calcScore();
+    const mood = getMood(score);
+    STATE.history.unshift({ timestamp: STATE.lastUpdated, score, mood });
+    if (STATE.history.length > 10) STATE.history = STATE.history.slice(0, 10);
+
+    saveState();
+    render();
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function refreshPortfolioPrices() {
+  showLoading(true);
+  try {
+    const tasks = STATE.portfolio.map(async entry => {
+      const res = await fetchYahoo(entry.name.toUpperCase());
+      if (res) entry.currentPrice = res.price;
+    });
+    await Promise.allSettled(tasks);
+    saveState();
+    renderPortfolio();
+  } finally {
+    showLoading(false);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SCORING
+// ══════════════════════════════════════════════════════
+function calcScore() {
+  let wSum = 0, wTotal = 0;
+  for (const [id, conf] of Object.entries(IND)) {
+    if (!conf.scoreKey || conf.scoreW === 0) continue;
+    const ind = STATE.indicators[id];
+    if (!ind || ind.value == null) continue;
+    const s = ind.status === 'healthy' ? 1.0 : ind.status === 'caution' ? 0.5 : 0.0;
+    wSum += s * conf.scoreW;
+    wTotal += conf.scoreW;
+  }
+  if (wTotal === 0) return 50;
+  return Math.min(100, Math.max(0, Math.round((wSum / wTotal) * 100)));
+}
+
+function getMood(score) {
+  if (score >= 80) return 'EUPHORIC';
+  if (score >= 60) return 'OPTIMISTIC';
+  if (score >= 40) return 'NEUTRAL';
+  if (score >= 20) return 'ANXIOUS';
+  return 'PANICKING';
+}
+
+const MOOD_COLORS = { EUPHORIC:'#f1c40f', OPTIMISTIC:'#e8a020', NEUTRAL:'#7f8fa6', ANXIOUS:'#e67e22', PANICKING:'#c0392b' };
+
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+function render() {
+  const score = calcScore();
+  const mood = getMood(score);
+  renderCharacter(score, mood);
+  renderCards();
+  renderActionPanel(mood);
+  renderPortfolio();
+  renderHistory();
+  renderLastUpdated();
+  renderFreshnessScore();
+}
+
+function renderCharacter(score, mood) {
+  document.querySelectorAll('.mr-svg').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('svg-' + mood.toLowerCase());
+  if (el) el.classList.add('active');
+
+  const color = MOOD_COLORS[mood] || 'var(--gold)';
+  const label = document.getElementById('mood-label');
+  label.textContent = mood;
+  label.style.color = color;
+
+  const quotes = QUOTES[mood] || QUOTES.NEUTRAL;
+  document.getElementById('mood-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+
+  const scoreEl = document.getElementById('score-display');
+  scoreEl.textContent = score;
+  scoreEl.style.color = color;
+
+  document.getElementById('meter-needle').style.left = score + '%';
+}
+
+function renderCards() {
+  const sections = { au: 'au-cards', us: 'us-cards', macro: 'macro-cards' };
+  for (const [sec, elId] of Object.entries(sections)) {
+    const container = document.getElementById(elId);
+    container.innerHTML = Object.entries(IND)
+      .filter(([,c]) => c.section === sec)
+      .map(([id, conf]) => buildCard(id, conf))
+      .join('');
+  }
+}
+
+function buildCard(id, conf) {
+  const ind = STATE.indicators[id];
+  const hasVal = ind && ind.value != null;
+  const status = hasVal ? ind.status : 'unknown';
+  const statusLabels = { healthy:'🟢 HEALTHY', caution:'🟡 CAUTION', warning:'🔴 WARNING', unknown:'— NO DATA' };
+  const displayVal = hasVal ? (typeof ind.value === 'string' ? ind.value : conf.fmt(ind.value)) : '—';
+
+  let changeHtml = '';
+  if (hasVal && ind.changePct != null && typeof ind.value !== 'string') {
+    const dir = ind.changePct > 0.01 ? 'up' : ind.changePct < -0.01 ? 'down' : 'flat';
+    const arrow = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '—';
+    changeHtml = `<span class="card-change ${dir}">${arrow} ${Math.abs(ind.changePct).toFixed(2)}%</span>`;
+  }
+
+  // Freshness badge
+  const fresh = getFreshnessInfo(ind);
+  const lastFetchedTitle = ind?.lastFetched ? new Date(ind.lastFetched).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : 'Never updated';
+
+  let metaHtml = '';
+  const isAutoFetched = hasVal && ind.isManual === false;
+  const tagType = !hasVal ? 'unknown' : ind.stale ? 'stale' : isAutoFetched ? 'live' : 'manual';
+  const tagText = !hasVal ? 'NO DATA' : ind.stale ? 'STALE' : isAutoFetched ? 'LIVE' : 'MANUAL';
+  metaHtml += `<span class="data-tag ${tagType}">${tagText}</span>`;
+  metaHtml += `<span class="fresh-badge ${fresh.cls}" title="${escapeHTML(lastFetchedTitle)}">${fresh.label}</span>`;
+  if (!conf.auto) metaHtml += `<button class="edit-btn" onclick="startEdit('${id}')" title="Edit">✏️</button>`;
+  if (hasVal && ind.lastFetched) metaHtml += `<span style="font-size:9px;color:var(--text-faint);font-family:var(--mono);">${timeAgo(ind.lastFetched)}</span>`;
+
+  // Staleness reminder banner
+  let reminderHtml = '';
+  if (conf.reminder && ind && ind.lastFetched) {
+    const days = Math.floor((Date.now() - new Date(ind.lastFetched).getTime()) / 86400000);
+    if (days >= conf.reminder.days) {
+      reminderHtml = `<div class="stale-reminder">📅 ${escapeHTML(conf.reminder.msg)} <a href="${conf.reminder.link.url}" target="_blank">${escapeHTML(conf.reminder.link.label)} →</a></div>`;
+    }
+  }
+
+  let extraHtml = '';
+
+  if (id === 'sp500' && hasVal) {
+    const pe = ind.extra?.pe ?? 26.0;
+    extraHtml += `<div class="pe-row"><span class="pe-label">Est. P/E:</span><span class="pe-val">${pe.toFixed(1)}</span><button class="edit-btn" onclick="editSP500PE()" title="Edit P/E">✏️</button></div>`;
+  }
+
+  if (id === 'bitcoin' && hasVal && ind.extra?.change24h != null) {
+    const ch = ind.extra.change24h;
+    const cls = ch > 0 ? 'up' : 'down';
+    extraHtml += `<div style="font-family:var(--mono);font-size:11px;" class="card-change ${cls}">${ch>0?'▲':'▼'} ${Math.abs(ch).toFixed(2)}% (24h)</div>`;
+  }
+
+  // 52-week range bar
+  if (hasVal && ind.high52w && ind.low52w && typeof ind.value !== 'string') {
+    const pos = Math.min(100, Math.max(0, ((ind.value - ind.low52w) / (ind.high52w - ind.low52w)) * 100));
+    extraHtml += `<div class="card-52w"><div class="card-52w-bar"><div class="card-52w-fill" style="width:${pos.toFixed(1)}%"></div></div><div class="card-52w-label">52w: ${conf.fmt(ind.low52w)} – ${conf.fmt(ind.high52w)} (${pos.toFixed(0)}th %ile)</div></div>`;
+  }
+
+  const interpText = hasVal ? (conf.interpret[status] || '') : 'Click Refresh to fetch live data.';
+  const featured = conf.featured ? ' featured' : '';
+
+  // Sources HTML
+  let sourcesHtml = '';
+  if (conf.sources && conf.sources.length > 0) {
+    const links = conf.sources.map(s => `<a href="${s.url}" target="_blank">${escapeHTML(s.label)}</a>`).join('');
+    sourcesHtml = `<div class="card-sources">
+      <button class="card-sources-toggle" onclick="toggleSources('${id}')">▸ Sources</button>
+      <div class="card-sources-links" id="src-${id}">${links}</div>
+    </div>`;
+  }
+
+  return `<div class="ind-card${featured}" id="card-${id}">
+    <div id="card-inner-${id}">
+      ${reminderHtml}
+      <div class="card-top">
+        <div class="card-label">${conf.label}</div>
+        <span class="status-badge ${status}">${statusLabels[status]}</span>
+      </div>
+      <div class="card-value">${displayVal}${changeHtml}</div>
+      <div class="card-meta">${metaHtml}</div>
+      ${extraHtml}
+      <div class="card-interpret">${interpText}</div>
+      ${sourcesHtml}
+    </div>
+  </div>`;
+}
+
+function renderActionPanel(mood) {
+  const sec = document.getElementById('action-section');
+  const data = ACTION_TEXT[mood] || ACTION_TEXT.NEUTRAL;
+  sec.innerHTML = `<div class="action-card ${mood.toLowerCase()}">
+    <div class="action-head">${escapeHTML(data.head)}</div>
+    <div class="action-text">${escapeHTML(data.text)}</div>
+  </div>`;
+}
+
+function renderLastUpdated() {
+  const el = document.getElementById('last-updated');
+  if (!STATE.lastUpdated) { el.textContent = 'No data yet — click Refresh'; return; }
+  const ts = new Date(STATE.lastUpdated);
+  const hoursAgo = (Date.now() - ts.getTime()) / 3600000;
+  el.textContent = 'Last updated: ' + ts.toLocaleString('en-AU', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  el.className = 'last-updated' + (hoursAgo > 24 ? ' stale' : '');
+}
+
+// ══════════════════════════════════════════════════════
+// INLINE EDIT
+// ══════════════════════════════════════════════════════
+function startEdit(id) {
+  const conf = IND[id];
+  const ind = STATE.indicators[id];
+  const curVal = ind ? ind.value : conf.defaultVal;
+  const inner = document.getElementById('card-inner-' + id);
+  if (!inner) return;
+  inner.innerHTML = `<div class="card-label" style="margin-bottom:8px">${conf.label}</div>
+    <div class="inline-edit-wrap">
+      <input class="inline-edit" id="edit-input-${id}" type="number" step="0.01" value="${curVal != null ? curVal : ''}">
+      <button class="inline-save" onclick="commitEdit('${id}')">Save</button>
+      <button class="inline-save" style="background:var(--border-mid);color:var(--text-sub);" onclick="renderCards()">✕</button>
+    </div>
+    <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Press Save or Enter to confirm</div>`;
+  const inp = document.getElementById('edit-input-' + id);
+  if (inp) { inp.focus(); inp.select(); inp.addEventListener('keydown', e => { if(e.key==='Enter') commitEdit(id); if(e.key==='Escape') renderCards(); }); }
+}
+
+function commitEdit(id) {
+  const inp = document.getElementById('edit-input-' + id);
+  if (!inp) return;
+  const val = parseFloat(inp.value);
+  if (isNaN(val)) return;
+  const conf = IND[id];
+  const ex = STATE.indicators[id]?.extra || null;
+  const status = conf.getStatus(val, ex);
+  STATE.indicators[id] = { ...STATE.indicators[id], value:val, status, isManual:true, lastFetched:new Date().toISOString(), stale:false };
+  saveState();
+  renderCards();
+  // Re-render character as score may have changed
+  const score = calcScore();
+  renderCharacter(score, getMood(score));
+  renderActionPanel(getMood(score));
+}
+
+function editSP500PE() {
+  const ind = STATE.indicators['sp500'];
+  if (!ind) return;
+  const curPE = ind.extra?.pe ?? 26.0;
+  const inner = document.getElementById('card-inner-sp500');
+  if (!inner) return;
+  const origHtml = inner.innerHTML;
+  inner.innerHTML += `<div class="pe-row" style="margin-top:6px">
+    <span class="pe-label">Edit P/E:</span>
+    <input class="inline-edit" id="pe-input" type="number" step="0.1" value="${curPE}" style="width:70px">
+    <button class="inline-save" onclick="commitPE()">Save</button>
+    <button class="inline-save" style="background:var(--border-mid);color:var(--text-sub);" onclick="renderCards()">✕</button>
+  </div>`;
+  const inp = document.getElementById('pe-input');
+  if (inp) { inp.focus(); inp.select(); inp.addEventListener('keydown', e=>{ if(e.key==='Enter') commitPE(); if(e.key==='Escape') renderCards(); }); }
+}
+
+function commitPE() {
+  const inp = document.getElementById('pe-input');
+  if (!inp) return;
+  const pe = parseFloat(inp.value);
+  if (isNaN(pe)) return;
+  if (!STATE.indicators['sp500']) STATE.indicators['sp500'] = { value:null, status:'caution', isManual:false, extra:null };
+  STATE.indicators['sp500'].extra = { pe };
+  if (STATE.indicators['sp500'].value != null) {
+    STATE.indicators['sp500'].status = IND.sp500.getStatus(STATE.indicators['sp500'].value, { pe });
+  }
+  saveState();
+  renderCards();
+  const score = calcScore();
+  renderCharacter(score, getMood(score));
+  renderActionPanel(getMood(score));
+}
+
+// ══════════════════════════════════════════════════════
+// PORTFOLIO
+// ══════════════════════════════════════════════════════
+function openAddPortfolio() {
+  editingPortfolioId = null;
+  document.getElementById('p-name').value = '';
+  document.getElementById('p-units').value = '';
+  document.getElementById('p-price').value = '';
+  document.getElementById('p-currency').value = 'AUD';
+  document.getElementById('p-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('p-action').value = 'HOLD';
+  document.getElementById('p-notes').value = '';
+  document.getElementById('portfolio-modal').classList.remove('hidden');
+}
+
+function openEditPortfolio(id) {
+  const entry = STATE.portfolio.find(e => e.id === id);
+  if (!entry) return;
+  editingPortfolioId = id;
+  document.getElementById('p-name').value = entry.name;
+  document.getElementById('p-units').value = entry.units;
+  document.getElementById('p-price').value = entry.avgBuyPrice;
+  document.getElementById('p-currency').value = entry.currency || 'AUD';
+  document.getElementById('p-date').value = entry.purchaseDate || '';
+  document.getElementById('p-action').value = entry.actionTag || 'HOLD';
+  document.getElementById('p-notes').value = entry.notes || '';
+  document.getElementById('portfolio-modal').classList.remove('hidden');
+}
+
+function closeModal() { document.getElementById('portfolio-modal').classList.add('hidden'); }
+
+function savePortfolioEntry() {
+  const name = document.getElementById('p-name').value.trim().toUpperCase();
+  const units = parseFloat(document.getElementById('p-units').value);
+  const avgBuyPrice = parseFloat(document.getElementById('p-price').value);
+  const currency = document.getElementById('p-currency').value;
+  const purchaseDate = document.getElementById('p-date').value;
+  const actionTag = document.getElementById('p-action').value;
+  const notes = document.getElementById('p-notes').value.trim();
+  if (!name || isNaN(units) || isNaN(avgBuyPrice)) return;
+  if (editingPortfolioId) {
+    const idx = STATE.portfolio.findIndex(e => e.id === editingPortfolioId);
+    if (idx !== -1) STATE.portfolio[idx] = { ...STATE.portfolio[idx], name, units, avgBuyPrice, currency, purchaseDate, actionTag, notes };
+  } else {
+    STATE.portfolio.push({ id: uuid(), name, units, avgBuyPrice, currency, purchaseDate, actionTag, notes, currentPrice: null });
+  }
+  saveState();
+  closeModal();
+  renderPortfolio();
+}
+
+function deletePortfolio(id) {
+  if (!confirm('Remove this holding?')) return;
+  STATE.portfolio = STATE.portfolio.filter(e => e.id !== id);
+  saveState();
+  renderPortfolio();
+}
+
+function renderPortfolio() {
+  const wrap = document.getElementById('portfolio-wrap');
+  const summary = document.getElementById('portfolio-summary');
+  if (STATE.portfolio.length === 0) {
+    wrap.innerHTML = '<div class="port-empty">No holdings yet. Click "+ Add Holding" to track your portfolio.</div>';
+    summary.innerHTML = '';
+    return;
+  }
+  const audUsd = STATE.indicators['audUsd']?.value || 0.64;
+  let totalAUD = 0, totalCostAUD = 0;
+  const rows = STATE.portfolio.map(e => {
+    const curPrice = e.currentPrice;
+    const hasPrice = curPrice != null;
+    const curValLocal = hasPrice ? e.units * curPrice : null;
+    const costLocal = e.units * e.avgBuyPrice;
+    const gainLossPct = hasPrice ? ((curPrice - e.avgBuyPrice) / e.avgBuyPrice) * 100 : null;
+    const curValAUD = curValLocal != null ? (e.currency === 'USD' ? curValLocal / audUsd : curValLocal) : null;
+    const costAUD = e.currency === 'USD' ? costLocal / audUsd : costLocal;
+    if (curValAUD != null) totalAUD += curValAUD;
+    totalCostAUD += costAUD;
+
+    const cgtInfo = getCGTInfo(e);
+    const harvestAlert = getTaxLossAlert(e, curPrice, e.avgBuyPrice);
+    let alertHtml = '';
+    if (cgtInfo.alert) alertHtml += `<div><span class="cgt-badge discount-soon">${escapeHTML(cgtInfo.alert)}</span></div>`;
+    if (harvestAlert) alertHtml += `<div><span class="cgt-badge harvest">${escapeHTML(harvestAlert)}</span></div>`;
+    if (!cgtInfo.alert && !harvestAlert && cgtInfo.discounted) alertHtml += `<span class="cgt-badge ok">50% Discount ✓</span>`;
+
+    const gainClass = gainLossPct != null ? (gainLossPct >= 0 ? 'gain-pos' : 'gain-neg') : '';
+    const gainStr = gainLossPct != null ? `<span class="${gainClass}">${gainLossPct >= 0 ? '+' : ''}${gainLossPct.toFixed(1)}%</span>` : '—';
+    const curValStr = curValLocal != null ? (e.currency === 'USD' ? `$${curValLocal.toFixed(0)} USD` : `$${curValLocal.toFixed(0)}`) : '—';
+
+    return `<tr>
+      <td><strong class="port-val">${escapeHTML(e.name)}</strong>${e.notes?`<div style="font-size:10px;color:var(--text-faint)">${escapeHTML(e.notes)}</div>`:''}</td>
+      <td class="port-val">${e.units}</td>
+      <td class="port-val">${e.currency === 'USD' ? '$' : '$'}${e.avgBuyPrice.toFixed(2)} ${e.currency}</td>
+      <td class="port-val">${curPrice != null ? `$${curPrice.toFixed(2)} ${e.currency}` : '—'}</td>
+      <td class="port-val">${curValStr}</td>
+      <td>${gainStr}</td>
+      <td>${cgtInfo.label}${alertHtml}</td>
+      <td><span class="action-tag ${e.actionTag}">${e.actionTag}</span></td>
+      <td><div class="port-actions">
+        <button class="port-edit-btn" onclick="openEditPortfolio('${e.id}')" title="Edit">✏️</button>
+        <button class="port-del-btn" onclick="deletePortfolio('${e.id}')" title="Remove">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `<table class="port">
+    <thead><tr>
+      <th>Asset</th><th>Units</th><th>Avg Buy</th><th>Live Price</th><th>Value</th><th>Gain/Loss</th><th>CGT Status</th><th>Action</th><th></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+
+  const totalGainPct = totalCostAUD > 0 ? ((totalAUD - totalCostAUD) / totalCostAUD * 100) : 0;
+  const gainCls = totalAUD >= totalCostAUD ? 'gain-pos' : 'gain-neg';
+  summary.innerHTML = `<div class="port-summary">
+    <div class="port-summary-item"><div class="port-summary-label">Portfolio Value (AUD)</div><div class="port-summary-val">$${totalAUD.toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0})}</div></div>
+    <div class="port-summary-item"><div class="port-summary-label">Cost Basis (AUD)</div><div class="port-summary-val">$${totalCostAUD.toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0})}</div></div>
+    <div class="port-summary-item"><div class="port-summary-label">Overall Gain/Loss</div><div class="port-summary-val ${gainCls}">${totalGainPct >= 0 ? '+' : ''}${totalGainPct.toFixed(1)}%</div></div>
+    <div class="port-summary-item"><div class="port-summary-label">AUD/USD Rate Used</div><div class="port-summary-val" style="font-size:13px">${audUsd.toFixed(4)}</div></div>
+  </div>`;
+}
+
+function getCGTInfo(entry) {
+  if (!entry.purchaseDate) return { label: 'Date unknown', alert: null, discounted: false };
+  const now = new Date();
+  const purchase = new Date(entry.purchaseDate);
+  const daysHeld = Math.floor((now - purchase) / 86400000);
+  if (daysHeld < 365) {
+    const daysLeft = 365 - daysHeld;
+    return { label: `< 12 months held`, alert: daysLeft <= 30 ? `CGT discount in ${daysLeft}d` : null, discounted: false };
+  }
+  return { label: '≥ 12 months (50% discount)', alert: null, discounted: true };
+}
+
+function getTaxLossAlert(entry, currentPrice, avgBuyPrice) {
+  if (currentPrice == null) return null;
+  if (currentPrice >= avgBuyPrice) return null;
+  const now = new Date();
+  let june30 = new Date(now.getFullYear(), 5, 30);
+  if (now > june30) june30 = new Date(now.getFullYear() + 1, 5, 30);
+  const days = Math.floor((june30 - now) / 86400000);
+  if (days > 60) return null;
+  const loss = (avgBuyPrice - currentPrice) * entry.units;
+  return `Loss harvest: $${loss.toFixed(0)} before ${june30.toLocaleDateString('en-AU',{day:'numeric',month:'short'})}`;
+}
+
+// ══════════════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════════════
+function toggleHistory() {
+  historyVisible = !historyVisible;
+  const content = document.getElementById('history-content');
+  const btn = document.getElementById('history-toggle');
+  content.classList.toggle('hidden', !historyVisible);
+  btn.textContent = historyVisible ? '📊 Hide History' : '📊 Show History';
+  if (historyVisible) renderHistory();
+}
+
+function renderHistory() {
+  const content = document.getElementById('history-content');
+  if (STATE.history.length === 0) {
+    content.innerHTML = '<div style="padding:16px;color:var(--text-faint);font-size:12px;font-style:italic;">No history yet. Refresh data to record the first snapshot.</div>';
+    return;
+  }
+  const rows = STATE.history.map(h => {
+    const mood = getMood(h.score);
+    const color = MOOD_COLORS[mood] || 'var(--gold)';
+    return `<tr>
+      <td>${new Date(h.timestamp).toLocaleString('en-AU',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
+      <td class="hist-score" style="color:${color}">${h.score}</td>
+      <td style="color:${color}">${h.mood}</td>
+    </tr>`;
+  }).join('');
+  content.innerHTML = `<table class="hist">
+    <thead><tr><th>Timestamp</th><th>Score</th><th>Mood</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ══════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════
+function uuid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
+}
+
+function escapeHTML(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showLoading(v) {
+  const el = document.getElementById('loading');
+  el.classList.toggle('show', v);
+}
+
+function exportSnapshot() { window.print(); }
+
+function exportMetricsJson() {
+  const score = calcScore();
+  const mood  = getMood(score);
+
+  const SECTION_KEYS = {
+    australia:     ['asx200', 'auUnemployment', 'auInflation', 'rbaRate', 'auConsumerConf', 'audUsd'],
+    united_states: ['sp500', 'usUnemployment', 'usInflation', 'fedRate', 'usDebtGdp', 'vix'],
+  };
+
+  // Human-readable snake_case keys
+  const KEY_MAP = {
+    asx200:          'asx_200',
+    auUnemployment:  'unemployment_rate',
+    auInflation:     'inflation_cpi_annual',
+    rbaRate:         'rba_cash_rate',
+    auConsumerConf:  'consumer_confidence_anz',
+    audUsd:          'aud_usd_exchange_rate',
+    sp500:           'sp_500',
+    usUnemployment:  'unemployment_rate',
+    usInflation:     'inflation_cpi_annual',
+    fedRate:         'fed_funds_rate',
+    usDebtGdp:       'debt_to_gdp_pct',
+    vix:             'vix_fear_index',
+  };
+
+  const output = {
+    exported_at:     new Date().toISOString(),
+    data_as_of:      STATE.lastUpdated || null,
+    sentiment_score: score,
+    mood,
+  };
+
+  for (const [section, ids] of Object.entries(SECTION_KEYS)) {
+    output[section] = {};
+    for (const id of ids) {
+      const conf = IND[id];
+      const ind  = STATE.indicators[id];
+      const key  = KEY_MAP[id];
+      output[section][key] = {
+        label:        conf.label,
+        value:        ind?.value ?? null,
+        formatted:    ind?.value != null ? conf.fmt(ind.value) : null,
+        status:       ind?.status ?? null,
+        change_pct:   ind?.changePct ?? null,
+        high_52w:     ind?.high52w   ?? null,
+        low_52w:      ind?.low52w    ?? null,
+        is_manual:    ind?.isManual  ?? true,
+        last_fetched: ind?.lastFetched ?? null,
+      };
+    }
+  }
+
+  const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `mr-market-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════════════
+// FRESHNESS
+// ══════════════════════════════════════════════════════
+function getFreshnessInfo(ind) {
+  if (!ind || ind.value == null) return { label:'NEVER SET', cls:'fresh-never', days:null };
+  if (!ind.isManual && !ind.stale) return { label:'LIVE', cls:'fresh-live', days:0 };
+  if (!ind.lastFetched) return { label:'NEVER SET', cls:'fresh-never', days:null };
+  const days = Math.floor((Date.now() - new Date(ind.lastFetched).getTime()) / 86400000);
+  if (days <= 14) return { label:'RECENT', cls:'fresh-recent', days };
+  if (days <= 45) return { label:'AGING', cls:'fresh-aging', days };
+  return { label:'STALE', cls:'fresh-stale', days };
+}
+
+function renderFreshnessScore() {
+  const ids = Object.keys(IND);
+  let fresh = 0;
+  for (const id of ids) {
+    const info = getFreshnessInfo(STATE.indicators[id]);
+    if (info.label === 'LIVE' || info.label === 'RECENT') fresh++;
+  }
+  const pct = Math.round((fresh / ids.length) * 100);
+  const stale = ids.length - fresh;
+  const el = document.getElementById('freshness-score');
+  if (!el) return;
+  el.textContent = `📊 Freshness: ${pct}% — ${stale} indicator${stale!==1?'s':''} aging/stale`;
+  el.className = 'freshness-score' + (pct < 60 ? ' warn' : '');
+}
+
+function toggleSources(id) {
+  const el = document.getElementById('src-'+id);
+  if (el) el.classList.toggle('open');
+}
+
+// ══════════════════════════════════════════════════════
+// DATA CALENDAR
+// ══════════════════════════════════════════════════════
+const CALENDAR_RELEASES = [
+  { id:'cal_abs_labour', label:'ABS Labour Force (AU Unemployment)', freq:'Monthly, ~3rd Thursday', url:'https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia' },
+  { id:'cal_abs_monthly_cpi', label:'ABS Monthly CPI Indicator', freq:'Monthly, ~last Wednesday', url:'https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-cpi-indicator/latest-release' },
+  { id:'cal_abs_cpi', label:'ABS CPI Quarterly', freq:'Quarterly (Jan/Apr/Jul/Oct)', url:'https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release' },
+  { id:'cal_rba', label:'RBA Board Decision', freq:'~8 times/year', url:'https://www.rba.gov.au/monetary-policy/rba-board-minutes/' },
+  { id:'cal_anz_conf', label:'ANZ-Roy Morgan Confidence', freq:'Weekly, Tuesday', url:'https://www.roymorgan.com/findings/consumer-confidence' },
+  { id:'cal_bls_nfp', label:'BLS US Jobs Report (NFP)', freq:'Monthly, 1st Friday', url:'https://www.bls.gov/news.release/empsit.nr0.htm' },
+  { id:'cal_bls_cpi', label:'BLS US CPI', freq:'Monthly, ~2nd Wednesday', url:'https://www.bls.gov/cpi/' },
+  { id:'cal_fomc', label:'FOMC Fed Decision', freq:'Every ~6 weeks', url:'https://www.federalreserve.gov/monetarypolicy/openmarket.htm' },
+  { id:'cal_boj', label:'BOJ Interest Rate Decision', freq:'~8 times/year', url:'https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm' },
+];
+
+function toggleCalendar() {
+  calendarVisible = !calendarVisible;
+  const content = document.getElementById('calendar-content');
+  const btn = document.getElementById('calendar-toggle');
+  content.classList.toggle('hidden', !calendarVisible);
+  btn.textContent = calendarVisible ? 'Hide Calendar' : 'Show Calendar';
+  if (calendarVisible) renderCalendar();
+}
+
+function getCalendarDates() {
+  try { return JSON.parse(localStorage.getItem('mrmarket_cal') || '{}'); } catch(_) { return {}; }
+}
+
+function saveCalendarDate(id, dateStr) {
+  const d = getCalendarDates();
+  d[id] = dateStr;
+  localStorage.setItem('mrmarket_cal', JSON.stringify(d));
+}
+
+function renderCalendar() {
+  const content = document.getElementById('calendar-content');
+  const dates = getCalendarDates();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const rows = CALENDAR_RELEASES.map(r => {
+    const dateStr = dates[r.id] || '';
+    let urgencyClass = '';
+    let urgencyNote = '';
+    if (dateStr) {
+      const d = new Date(dateStr); d.setHours(0,0,0,0);
+      const diff = Math.floor((d - today) / 86400000);
+      if (diff <= 0) { urgencyClass = 'cal-urgent'; urgencyNote = diff === 0 ? ' (TODAY)' : ` (${Math.abs(diff)}d overdue)`; }
+      else if (diff <= 3) { urgencyClass = 'cal-soon'; urgencyNote = ` (in ${diff}d)`; }
+    }
+    return `<tr>
+      <td><strong>${escapeHTML(r.label)}</strong><br><span style="font-size:10px;color:var(--text-faint)">${escapeHTML(r.freq)}</span></td>
+      <td><input class="cal-date-input" type="date" value="${escapeHTML(dateStr)}" onchange="saveCalendarDate('${r.id}', this.value); renderCalendar()"></td>
+      <td class="${urgencyClass}">${dateStr ? (new Date(dateStr).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) + urgencyNote) : '—'}</td>
+      <td><a href="${r.url}" target="_blank" class="cal-link">Source →</a></td>
+    </tr>`;
+  }).join('');
+
+  content.innerHTML = `<div style="overflow-x:auto"><table class="cal-table">
+    <thead><tr><th>Release</th><th>Next Date</th><th>Status</th><th>Source</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// QUICK UPDATE
+// ══════════════════════════════════════════════════════
+function openQuickUpdate() {
+  const manualIds = Object.entries(IND).filter(([,c])=>!c.auto).map(([id])=>id);
+  const fields = manualIds.map(id => {
+    const conf = IND[id];
+    const ind = STATE.indicators[id];
+    const fresh = getFreshnessInfo(ind);
+    const lastDate = ind?.lastFetched ? new Date(ind.lastFetched).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : 'Never updated';
+    const srcLink = conf.sources?.[0] ? `<a href="${conf.sources[0].url}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none">${conf.sources[0].label} →</a>` : '';
+    const isText = id === 'rbaMarketExp';
+    return `<div class="form-group" style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <label class="form-label" style="margin:0">${escapeHTML(conf.label)}</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="fresh-badge ${fresh.cls}">${fresh.label}</span>
+          <span style="font-size:10px;color:var(--text-faint);font-family:var(--mono)">${escapeHTML(lastDate)}</span>
+          ${srcLink}
+        </div>
+      </div>
+      ${isText
+        ? `<input class="form-input" id="qu-${id}" type="text" value="${escapeHTML(String(ind?.value || ''))}" placeholder="e.g. 86% chance of hike">`
+        : `<input class="form-input" id="qu-${id}" type="number" step="0.01" value="${ind?.value != null ? ind.value : ''}" placeholder="${conf.defaultVal != null ? conf.defaultVal : ''}">`
+      }
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <button class="btn-sm" style="font-size:10px;padding:4px 10px;" onclick="markAsCurrent('${id}')">Mark as Current</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('qu-fields').innerHTML = fields;
+  document.getElementById('quickupdate-modal').classList.remove('hidden');
+}
+
+function closeQuickUpdate() {
+  document.getElementById('quickupdate-modal').classList.add('hidden');
+}
+
+function markAsCurrent(id) {
+  if (STATE.indicators[id]) {
+    STATE.indicators[id].lastFetched = new Date().toISOString();
+    STATE.indicators[id].stale = false;
+    saveState();
+    openQuickUpdate();
+    render();
+  }
+}
+
+function saveQuickUpdate() {
+  const manualIds = Object.entries(IND).filter(([,c])=>!c.auto).map(([id])=>id);
+  for (const id of manualIds) {
+    const inp = document.getElementById('qu-' + id);
+    if (!inp) continue;
+    const conf = IND[id];
+    const isText = id === 'rbaMarketExp';
+    if (isText) {
+      const val = inp.value.trim();
+      if (!val) continue;
+      STATE.indicators[id] = { ...STATE.indicators[id], value:val, status:'warning', isManual:true, lastFetched:new Date().toISOString(), stale:false };
+    } else {
+      const val = parseFloat(inp.value);
+      if (isNaN(val)) continue;
+      const ex = STATE.indicators[id]?.extra || null;
+      STATE.indicators[id] = { ...STATE.indicators[id], value:val, status:conf.getStatus(val,ex), isManual:true, lastFetched:new Date().toISOString(), stale:false };
+    }
+  }
+  saveState();
+  closeQuickUpdate();
+  render();
+}
+
+// ══════════════════════════════════════════════════════
+// FRED CSV FETCH
+// ══════════════════════════════════════════════════════
+async function fetchFredCsv(seriesId) {
+  try {
+    const r = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`, { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return null;
+    const text = await r.text();
+    const lines = text.trim().split('\n').filter(l => l && !l.startsWith('DATE'));
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const [, val] = lines[i].split(',');
+      if (val && val.trim() !== '.' && !isNaN(parseFloat(val.trim()))) return parseFloat(val.trim());
+    }
+    return null;
+  } catch(_) { return null; }
+}
+
+// ══════════════════════════════════════════════════════
+// GRAIN TEXTURE
+// ══════════════════════════════════════════════════════
+function initGrain() {
+  const canvas = document.getElementById('grain-canvas');
+  if (!canvas) return;
+  const W = 200, H = 200;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(W, H);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = Math.random() * 255 | 0;
+    d[i] = d[i+1] = d[i+2] = v;
+    d[i+3] = Math.random() * 18 | 0;
+  }
+  ctx.putImageData(img, 0, 0);
+  canvas.style.backgroundImage = `url(${canvas.toDataURL()})`;
+  canvas.style.backgroundSize = '150px 150px';
+}
+
+// ══════════════════════════════════════════════════════
+// TICKER
+// ══════════════════════════════════════════════════════
+function initTicker() {
+  const items = [...PHILOSOPHY, ...PHILOSOPHY].map(p =>
+    `<span class="ticker-item">${escapeHTML(p)}</span><span class="ticker-sep"> ◆ </span>`
+  ).join('');
+  const track = document.getElementById('ticker-track');
+  if (track) track.innerHTML = items + items; // duplicate for infinite scroll
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+function init() {
+  initGrain();
+  initTicker();
+  loadState();
+  if (window.location.protocol === 'file:') {
+    document.getElementById('cors-notice').classList.remove('hidden');
+  }
+  render();
+  // Show neutral initially if no data
+  if (!STATE.lastUpdated) {
+    document.getElementById('score-display').textContent = '—';
+    document.getElementById('mood-label').textContent = 'NO DATA';
+    document.getElementById('mood-quote').textContent = 'Click "Refresh All Data" to fetch live market readings.';
+    document.getElementById('svg-neutral').classList.add('active');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
