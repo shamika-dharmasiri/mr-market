@@ -1,23 +1,29 @@
 {
-  "fetched": "2026-05-25T14:52:01.162Z",
+  "fetched": "2026-05-25T21:05:34.512Z",
   "indicators": {
+    "treasury10y": {
+      "price": 4.558,
+      "changePct": -2.33554746089565,
+      "high52w": 4.997,
+      "low52w": 3.345
+    },
     "vix": {
-      "price": 16.67,
-      "changePct": -7.696566998892564,
+      "price": 16.59,
+      "changePct": -8.139534883720923,
       "high52w": 35.3,
       "low52w": 13.38
-    },
-    "asx200": {
-      "price": 8692,
-      "changePct": 2.1951018776527667,
-      "high52w": 9202.9,
-      "low52w": 8262.4
     },
     "oil": {
       "price": 96.6,
       "changePct": -10.364665491324118,
       "high52w": 119.48,
       "low52w": 54.98
+    },
+    "asx200": {
+      "price": 8692,
+      "changePct": 2.1951018776527667,
+      "high52w": 9202.9,
+      "low52w": 8262.4
     },
     "gold": {
       "price": 4523.2,
@@ -31,18 +37,12 @@
       "high52w": 7517.12,
       "low52w": 5843.66
     },
-    "treasury10y": {
-      "price": 4.558,
-      "changePct": -2.33554746089565,
-      "high52w": 4.997,
-      "low52w": 3.345
-    },
     "audUsd": {
       "price": 0.7151387726788383
     },
     "bitcoin": {
-      "price": 77631,
-      "change24h": 1.617758025690716
+      "price": 77253,
+      "change24h": 0.9362574483870345
     },
     "usUnemployment": {
       "price": 4.3
