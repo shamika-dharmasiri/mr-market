@@ -1,57 +1,57 @@
 {
-  "fetched": "2026-05-28T15:52:00.093Z",
+  "fetched": "2026-05-28T21:54:37.794Z",
   "indicators": {
+    "vix": {
+      "price": 15.74,
+      "changePct": -5.748502994011971,
+      "high52w": 35.3,
+      "low52w": 13.38
+    },
+    "gold": {
+      "price": 4527.3,
+      "changePct": 0.13934970139350103,
+      "high52w": 5586.2,
+      "low52w": 3242.4
+    },
+    "treasury10y": {
+      "price": 4.455,
+      "changePct": -2.2597630539710347,
+      "high52w": 4.997,
+      "low52w": 3.345
+    },
+    "sp500": {
+      "price": 7563.63,
+      "changePct": 1.7578437690452113,
+      "high52w": 7568.72,
+      "low52w": 5843.66
+    },
+    "oil": {
+      "price": 88.53,
+      "changePct": -8.354037267080738,
+      "high52w": 119.48,
+      "low52w": 54.98
+    },
     "asx200": {
       "price": 8592.9,
       "changePct": -0.3340408504123443,
       "high52w": 9202.9,
       "low52w": 8262.4
     },
-    "vix": {
-      "price": 15.94,
-      "changePct": -4.550898203592813,
-      "high52w": 35.3,
-      "low52w": 13.38
-    },
-    "treasury10y": {
-      "price": 4.459,
-      "changePct": -2.1720052654673148,
-      "high52w": 4.997,
-      "low52w": 3.345
-    },
-    "sp500": {
-      "price": 7559.6,
-      "changePct": 1.7036258722960016,
-      "high52w": 7560.08,
-      "low52w": 5843.66
-    },
-    "gold": {
-      "price": 4508.3,
-      "changePct": -0.280911302809109,
-      "high52w": 5586.2,
-      "low52w": 3242.4
-    },
-    "oil": {
-      "price": 89.84,
-      "changePct": -6.99792960662525,
-      "high52w": 119.48,
-      "low52w": 54.98
-    },
     "audUsd": {
       "price": 0.7138533231299898
     },
     "bitcoin": {
-      "price": 72814,
-      "change24h": -3.1845363129498856
+      "price": 73760,
+      "change24h": -0.7096134953142839
     },
     "usUnemployment": {
       "price": 4.3
     },
-    "usDebtGdp": {
-      "price": 122.56815
-    },
     "fedRate": {
       "price": 3.64
+    },
+    "usDebtGdp": {
+      "price": 122.56815
     }
   }
 }
