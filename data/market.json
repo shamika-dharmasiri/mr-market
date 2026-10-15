@@ -1,9 +1,9 @@
 {
-  "fetched": "2026-10-15T16:20:59.598Z",
+  "fetched": "2026-10-15T22:53:26.742Z",
   "indicators": {
     "vix": {
-      "price": 16.78,
-      "changePct": 13.072776280323458,
+      "price": 16.46,
+      "changePct": 10.916442048517528,
       "high52w": 35.3,
       "low52w": 13.38
     },
@@ -13,45 +13,45 @@
       "high52w": 9296.7,
       "low52w": 8262.4
     },
-    "gold": {
-      "price": 4165.9,
-      "changePct": -0.5894144036653636,
-      "high52w": 5586.2,
-      "low52w": 3901.3
-    },
-    "oil": {
-      "price": 96.39,
-      "changePct": 2.8269682099424003,
-      "high52w": 119.48,
-      "low52w": 54.98
-    },
     "treasury10y": {
-      "price": 5.093,
-      "changePct": -2.8794813119755873,
+      "price": 5.089,
+      "changePct": -2.955758962623939,
       "high52w": 5.364,
       "low52w": 3.947
     },
+    "oil": {
+      "price": 96.15,
+      "changePct": 2.570940900362717,
+      "high52w": 119.48,
+      "low52w": 54.98
+    },
     "sp500": {
-      "price": 7720.58,
-      "changePct": -0.5766635416773949,
+      "price": 7744.06,
+      "changePct": -0.2742950745361358,
       "high52w": 7844.52,
       "low52w": 6316.91
+    },
+    "gold": {
+      "price": 4188,
+      "changePct": -0.06204362143846617,
+      "high52w": 5586.2,
+      "low52w": 3901.3
     },
     "audUsd": {
       "price": 0.6978264798631701
     },
     "bitcoin": {
-      "price": 82266,
-      "change24h": 0.8178930902913212
+      "price": 82408,
+      "change24h": 1.0241791047602051
     },
     "usUnemployment": {
       "price": 4.2
     },
-    "usDebtGdp": {
-      "price": 122.59387
-    },
     "fedRate": {
       "price": 3.75
+    },
+    "usDebtGdp": {
+      "price": 122.59387
     }
   }
 }
